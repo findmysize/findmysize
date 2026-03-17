@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FindMySize - Never Miss Your Shoe Size Again</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 50px 40px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .logo h1 {
+            font-size: 2.5em;
+            color: #667eea;
+            font-weight: 700;
+            transition: color 0.3s ease;
+        }
+
+        /* Logo color matches gender selection */
+        .container.male-selected .logo h1 {
+            color: #4a90e2;
+        }
+
+        .container.female-selected .logo h1 {
+            color: #e94b8a;
+        }
+
+        .container.unisex-selected .logo h1 {
+            color: #4caf50;
+        }
+
+        .tagline {
+            text-align: center;
+            font-size: 1.3em;
+            color: #555;
+            margin-bottom: 10px;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        /* Tagline gets subtle accent color based on gender */
+        .container.male-selected .tagline {
+            color: #3a7abd;
+        }
+
+        .container.female-selected .tagline {
+            color: #c9356d;
+        }
+
+        .container.unisex-selected .tagline {
+            color: #3c9f40;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #777;
+            margin-bottom: 40px;
+            font-size: 0.95em;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        /* Input borders are colored based on gender from the start */
+        .container.male-selected input,
+        .container.male-selected select {
+            border-color: #4a90e2;
+        }
+
+        .container.female-selected input,
+        .container.female-selected select {
+            border-color: #e94b8a;
+        }
+
+        .container.unisex-selected input,
+        .container.unisex-selected select {
+            border-color: #4caf50;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Input borders get glow when focused */
+        .container.male-selected input:focus,
+        .container.male-selected select:focus {
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.15);
+        }
+
+        .container.female-selected input:focus,
+        .container.female-selected select:focus {
+            border-color: #e94b8a;
+            box-shadow: 0 0 0 3px rgba(233, 75, 138, 0.15);
+        }
+
+        .container.unisex-selected input:focus,
+        .container.unisex-selected select:focus {
+            border-color: #4caf50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15);
+        }
+
+        .email-match {
+            border-color: #4caf50 !important;
+            background-color: #f1f8f4;
+        }
+
+        .email-mismatch {
+            border-color: #f44336 !important;
+            background-color: #fff5f5;
+        }
+
+        .size-input {
+            width: 100%;
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* Submit button matches gender color */
+        .container.male-selected button[type="submit"] {
+            background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+        }
+
+        .container.male-selected button[type="submit"]:hover {
+            box-shadow: 0 10px 25px rgba(74, 144, 226, 0.4);
+        }
+
+        .container.female-selected button[type="submit"] {
+            background: linear-gradient(135deg, #e94b8a 0%, #d6357d 100%);
+        }
+
+        .container.female-selected button[type="submit"]:hover {
+            box-shadow: 0 10px 25px rgba(233, 75, 138, 0.4);
+        }
+
+        .container.unisex-selected button[type="submit"] {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+        }
+
+        .container.unisex-selected button[type="submit"]:hover {
+            box-shadow: 0 10px 25px rgba(76, 175, 80, 0.4);
+        }
+
+        .info-box {
+            background: #f8f9ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-top: 30px;
+            border-radius: 8px;
+        }
+
+        .info-box p {
+            color: #555;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .success-message {
+            display: none;
+            background: #4caf50;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+            font-weight: 500;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        /* Success message background matches gender */
+        .container.male-selected .success-message {
+            background: #4a90e2;
+        }
+
+        .container.female-selected .success-message {
+            background: #e94b8a;
+        }
+
+        .container.unisex-selected .success-message {
+            background: #4caf50;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .popular-sizes {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .size-btn {
+            padding: 8px 16px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        /* Size buttons have readable dark text */
+        .size-btn {
+            color: #333;
+        }
+
+        .size-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        /* Size buttons match gender color on hover */
+        .container.male-selected .size-btn:hover {
+            background: #4a90e2;
+            border-color: #4a90e2;
+        }
+
+        .container.female-selected .size-btn:hover {
+            background: #e94b8a;
+            border-color: #e94b8a;
+        }
+
+        .container.unisex-selected .size-btn:hover {
+            background: #4caf50;
+            border-color: #4caf50;
+        }
+
+        /* Accessibility: Bigger touch targets for mobile (44x44px minimum) */
+        .size-btn {
+            min-width: 44px;
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Gender Toggle Styles */
+        .gender-toggle-wrapper {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .gender-toggle {
+            display: inline-flex;
+            gap: 12px;
+        }
+
+        .gender-option {
+            padding: 12px 28px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .gender-option:hover {
+            border-color: #ccc;
+            color: #333;
+        }
+
+        .gender-option.active {
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .gender-option.active.male {
+            background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+        }
+
+        .gender-option.active.female {
+            background: linear-gradient(135deg, #e94b8a 0%, #d6357d 100%);
+        }
+
+        .gender-option.active.unisex {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+        }
+
+        /* Container border colors based on gender - thicker and more prominent */
+        .container.male-selected {
+            border: 4px solid #4a90e2;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(74, 144, 226, 0.1) inset;
+        }
+
+        .container.female-selected {
+            border: 4px solid #e94b8a;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(233, 75, 138, 0.1) inset;
+        }
+
+        .container.unisex-selected {
+            border: 4px solid #4caf50;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(76, 175, 80, 0.1) inset;
+        }
+
+        /* Info box borders change with gender selection */
+        .container.male-selected .info-box {
+            border-left-color: #4a90e2;
+        }
+
+        .container.female-selected .info-box {
+            border-left-color: #e94b8a;
+        }
+
+        .container.unisex-selected .info-box {
+            border-left-color: #4caf50;
+        }
+
+        /* Success message border color */
+        .container.male-selected .success-message {
+            border-left: 4px solid #4a90e2;
+        }
+
+        .container.female-selected .success-message {
+            border-left: 4px solid #e94b8a;
+        }
+
+        .container.unisex-selected .success-message {
+            border-left: 4px solid #4caf50;
+        }
+
+        .size-conversion-note {
+            display: none;
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px 15px;
+            margin-top: 10px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            color: #856404;
+        }
+
+        .size-conversion-note.show {
+            display: block;
+        }
+
+        /* Accessibility: Email validation icons for color blind users */
+        .email-indicator {
+            display: none;
+            font-size: 1.2em;
+            margin-left: 8px;
+            font-weight: bold;
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .email-match + .email-indicator {
+            display: inline;
+            color: #4caf50;
+        }
+
+        .email-mismatch + .email-indicator {
+            display: inline;
+            color: #f44336;
+        }
+
+        /* Dark Mode Support */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(135deg, #4a5faa 0%, #5a3a72 100%);
+            }
+
+            .container {
+                background: #1e1e1e;
+                color: #e0e0e0;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            }
+
+            .logo h1 {
+                color: #8b9dff;
+            }
+
+            .tagline {
+                color: #c0c0c0;
+            }
+
+            .subtitle {
+                color: #a0a0a0;
+            }
+
+            label {
+                color: #c0c0c0;
+            }
+
+            input, select {
+                background: #2a2a2a;
+                border-color: #444;
+                color: #e0e0e0;
+            }
+
+            /* Dark mode: Input borders colored from start */
+            .container.male-selected input,
+            .container.male-selected select {
+                border-color: #4a90e2;
+            }
+
+            .container.female-selected input,
+            .container.female-selected select {
+                border-color: #e94b8a;
+            }
+
+            .container.unisex-selected input,
+            .container.unisex-selected select {
+                border-color: #4caf50;
+            }
+
+            input::placeholder, select::placeholder {
+                color: #777;
+            }
+
+            input:focus, select:focus {
+                border-color: #8b9dff;
+                box-shadow: 0 0 0 3px rgba(139, 157, 255, 0.2);
+            }
+
+            /* Dark mode: Input borders get glow when focused */
+            .container.male-selected input:focus,
+            .container.male-selected select:focus {
+                border-color: #4a90e2;
+                box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+            }
+
+            .container.female-selected input:focus,
+            .container.female-selected select:focus {
+                border-color: #e94b8a;
+                box-shadow: 0 0 0 3px rgba(233, 75, 138, 0.2);
+            }
+
+            .container.unisex-selected input:focus,
+            .container.unisex-selected select:focus {
+                border-color: #4caf50;
+                box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+            }
+
+            .email-match {
+                background-color: #1a3a1a;
+                border-color: #4caf50 !important;
+            }
+
+            .email-mismatch {
+                background-color: #3a1a1a;
+                border-color: #f44336 !important;
+            }
+
+            .size-btn {
+                background: #2a2a2a;
+                border-color: #444;
+                color: #e0e0e0;
+            }
+
+            .size-btn:hover {
+                background: #8b9dff;
+                border-color: #8b9dff;
+                color: #1e1e1e;
+            }
+
+            /* Dark mode: Size buttons match gender color on hover */
+            .container.male-selected .size-btn:hover {
+                background: #4a90e2;
+                border-color: #4a90e2;
+                color: white;
+            }
+
+            .container.female-selected .size-btn:hover {
+                background: #e94b8a;
+                border-color: #e94b8a;
+                color: white;
+            }
+
+            .container.unisex-selected .size-btn:hover {
+                background: #4caf50;
+                border-color: #4caf50;
+                color: white;
+            }
+
+            .info-box {
+                background: #2d3142 !important;
+                border-left-color: #8b9dff;
+            }
+
+            .info-box p {
+                color: #f0f0f0;
+            }
+
+            .info-box p strong {
+                color: #ffffff;
+            }
+
+            small {
+                color: #b8b8b8 !important;
+            }
+
+            button {
+                background: linear-gradient(135deg, #8b9dff 0%, #7a5faa 100%);
+            }
+
+            button:hover {
+                box-shadow: 0 10px 25px rgba(139, 157, 255, 0.4);
+            }
+
+            /* Dark mode: Submit button matches gender color */
+            .container.male-selected button[type="submit"] {
+                background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+            }
+
+            .container.male-selected button[type="submit"]:hover {
+                box-shadow: 0 10px 25px rgba(74, 144, 226, 0.4);
+            }
+
+            .container.female-selected button[type="submit"] {
+                background: linear-gradient(135deg, #e94b8a 0%, #d6357d 100%);
+            }
+
+            .container.female-selected button[type="submit"]:hover {
+                box-shadow: 0 10px 25px rgba(233, 75, 138, 0.4);
+            }
+
+            .container.unisex-selected button[type="submit"] {
+                background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            }
+
+            .container.unisex-selected button[type="submit"]:hover {
+                box-shadow: 0 10px 25px rgba(76, 175, 80, 0.4);
+            }
+
+            .gender-option {
+                background: #2a2a2a;
+                border-color: #444;
+                color: #999;
+            }
+
+            .gender-option:hover {
+                border-color: #666;
+                color: #c0c0c0;
+            }
+
+            .gender-option.active {
+                border-color: transparent;
+            }
+
+            .container.male-selected {
+                border: 4px solid #4a90e2;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(74, 144, 226, 0.15) inset;
+            }
+
+            .container.female-selected {
+                border: 4px solid #e94b8a;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(233, 75, 138, 0.15) inset;
+            }
+
+            .container.unisex-selected {
+                border: 4px solid #4caf50;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(76, 175, 80, 0.15) inset;
+            }
+
+            /* Dark mode: Logo matches gender */
+            .container.male-selected .logo h1 {
+                color: #6fa8f5;
+            }
+
+            .container.female-selected .logo h1 {
+                color: #ff6ba0;
+            }
+
+            .container.unisex-selected .logo h1 {
+                color: #66d96b;
+            }
+
+            /* Dark mode: Tagline gets accent */
+            .container.male-selected .tagline {
+                color: #6fa8f5;
+            }
+
+            .container.female-selected .tagline {
+                color: #ff6ba0;
+            }
+
+            .container.unisex-selected .tagline {
+                color: #66d96b;
+            }
+
+            .size-conversion-note {
+                background: #3a3620;
+                color: #ffd966;
+                border-left-color: #ffc107;
+            }
+        }
+
+        /* Reduced Motion Support (for users with vestibular disorders) */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+
+            button:hover {
+                transform: none;
+            }
+
+            button:active {
+                transform: none;
+            }
+        }
+
+        /* High Contrast Mode Support (Windows Accessibility) */
+        @media (forced-colors: active) {
+            .container {
+                border: 2px solid;
+            }
+
+            button {
+                border: 2px solid;
+            }
+
+            .info-box {
+                border: 2px solid;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 25px;
+            }
+
+            .logo h1 {
+                font-size: 2em;
+            }
+
+            .tagline {
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>FindMySize</h1>
+        </div>
+
+        <p class="tagline">Never miss your shoe size again</p>
+        <p class="subtitle">Get notified when your exact shoe size is back in stock or on sale</p>
+
+        <div class="gender-toggle-wrapper">
+            <div class="gender-toggle" role="radiogroup" aria-label="Select shoe gender category">
+                <button type="button" class="gender-option male active" data-gender="male" role="radio" aria-checked="true" onclick="selectGender('male')">
+                    Male
+                </button>
+                <button type="button" class="gender-option female" data-gender="female" role="radio" aria-checked="false" onclick="selectGender('female')">
+                    Female
+                </button>
+                <button type="button" class="gender-option unisex" data-gender="unisex" role="radio" aria-checked="false" onclick="selectGender('unisex')">
+                    Unisex
+                </button>
+            </div>
+        </div>
+
+        <form id="alertForm">
+            <div class="info-box" style="background: #f0fff4; margin-bottom: 25px; padding: 12px 15px;">
+                <p style="margin: 0; font-size: 0.9em;"><strong>💡 Pro tip:</strong> Have a product link or style code? Paste it below for fastest, most accurate matching!</p>
+            </div>
+
+            <div class="form-group">
+                <label for="productUrl">Product Link (Optional but powerful!)</label>
+                <input type="url" id="productUrl" name="productUrl" placeholder="https://www.takealot.com/nike-pegasus-41/..." aria-describedby="productUrlHelp">
+                <small id="productUrlHelp" style="color: #777; font-size: 0.85em; margin-top: 5px; display: block;">
+                    Paste the link where you saw this shoe - we'll match it exactly across all retailers!
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label for="styleCode">Style Code / SKU (Optional but powerful!)</label>
+                <input type="text" id="styleCode" name="styleCode" placeholder="e.g., FD2722-001, DZ2628-003" aria-describedby="styleCodeHelp">
+                <small id="styleCodeHelp" style="color: #777; font-size: 0.85em; margin-top: 5px; display: block;">
+                    Found on product page, box label, or shoe tongue. Guarantees exact match!
+                </small>
+            </div>
+
+            <div style="text-align: center; margin: 20px 0; color: #999; font-size: 0.85em;">
+                ── OR fill in the details below ──
+            </div>
+
+            <div class="form-group">
+                <label for="brand">Brand</label>
+                <select id="brand" name="brand" required>
+                    <option value="">Select a brand</option>
+                    <option value="Nike">Nike</option>
+                    <option value="Adidas">Adidas</option>
+                    <option value="New Balance">New Balance</option>
+                    <option value="ASICS">ASICS</option>
+                    <option value="Puma">Puma</option>
+                    <option value="Reebok">Reebok</option>
+                    <option value="Saucony">Saucony</option>
+                    <option value="Brooks">Brooks</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="model">Model (Optional)</label>
+                <input type="text" id="model" name="model" placeholder="e.g., Pegasus 41, Ultraboost, or leave blank for any">
+            </div>
+
+            <div class="form-group">
+                <label for="color">Color / Colorway <span id="colorOptional" style="color: #999; font-weight: normal;"></span></label>
+                <input type="text" id="color" name="color" placeholder="Describe the color - e.g., Black/White, All Black, Blue with Red" required aria-describedby="colorHelp">
+                <small id="colorHelp" style="color: #777; font-size: 0.85em; margin-top: 5px; display: block;">
+                    Don't worry about exact names - just describe the color as best you can (e.g., "mostly black with white swoosh")
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label for="size">Your Shoe Size</label>
+                <input type="hidden" id="gender" name="gender" value="male">
+                <input type="text" id="size" name="size" class="size-input" placeholder="e.g., 10.5" required aria-describedby="sizeHelp">
+                <div class="popular-sizes" id="sizeButtons" role="group" aria-label="Common shoe sizes">
+                    <!-- Size buttons will be dynamically populated -->
+                </div>
+                <div class="size-conversion-note" id="sizeConversionNote">
+                    <!-- Conversion notes will appear here -->
+                </div>
+                <small id="sizeHelp" style="color: #777; font-size: 0.85em; margin-top: 8px; display: block;">
+                    ⚠️ Make sure this size actually exists for your shoe model. We can only notify you if retailers stock it!
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" placeholder="your@email.com" required aria-describedby="emailHelp">
+            </div>
+
+            <div class="form-group">
+                <label for="confirmEmail">Confirm Email Address</label>
+                <input type="email" id="confirmEmail" name="confirmEmail" placeholder="Retype your email" required aria-describedby="confirmEmailHelp" aria-live="polite">
+                <span class="email-indicator" id="emailMatchIndicator" aria-hidden="true"></span>
+                <small id="confirmEmailHelp" style="color: #777; font-size: 0.85em; margin-top: 5px; display: block;">
+                    Double-checking helps us make sure you get notified!
+                </small>
+            </div>
+
+            <button type="submit">Notify Me When Available</button>
+        </form>
+
+        <div class="success-message" id="successMessage" role="alert" aria-live="assertive">
+            ✓ Success! We'll email you when your size becomes available.
+        </div>
+
+        <div class="info-box">
+            <p><strong>How it works:</strong> We monitor popular South African retailers (Takealot, Superbalist, Sportscene, etc.) and send you an email the moment your shoe size becomes available or goes on sale. No spam, just the shoes you want.</p>
+        </div>
+
+        <div class="info-box" style="background: #f0f7ff; margin-top: 15px;">
+            <p><strong>Need multiple shoes or sizes?</strong> Just submit this form again - it only takes 30 seconds per shoe! Perfect for shopping for the whole family.</p>
+        </div>
+    </div>
+
+    <script>
+        // Size configurations for different genders
+        const sizesConfig = {
+            male: {
+                sizes: ['7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5', '11', '11.5', '12', '12.5'],
+                label: "Men's US Size",
+                note: null
+            },
+            female: {
+                sizes: ['5', '5.5', '6', '6.5', '7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5'],
+                label: "Women's US Size",
+                note: "💡 Tip: Women's sizes are typically 1.5 sizes smaller than men's (e.g., Women's 8 = Men's 6.5)"
+            },
+            unisex: {
+                sizes: ['7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5', '11', '11.5', '12'],
+                label: "Unisex US Size",
+                note: "💡 Unisex sizing typically follows men's sizing. If converting from women's, add 1.5 sizes."
+            }
+        };
+
+        // Initialize with male sizes on page load
+        let currentGender = 'male';
+
+        function selectGender(gender) {
+            currentGender = gender;
+
+            // Update gender toggle buttons
+            document.querySelectorAll('.gender-option').forEach(btn => {
+                btn.classList.remove('active');
+                btn.setAttribute('aria-checked', 'false');
+            });
+
+            const selectedBtn = document.querySelector(`.gender-option.${gender}`);
+            selectedBtn.classList.add('active');
+            selectedBtn.setAttribute('aria-checked', 'true');
+
+            // Update container border color
+            const container = document.querySelector('.container');
+            container.classList.remove('male-selected', 'female-selected', 'unisex-selected');
+            container.classList.add(`${gender}-selected`);
+
+            // Update hidden input
+            document.getElementById('gender').value = gender;
+
+            // Update size buttons
+            updateSizeButtons(gender);
+
+            // Update conversion note
+            updateConversionNote(gender);
+
+            // Clear size input
+            document.getElementById('size').value = '';
+        }
+
+        function updateSizeButtons(gender) {
+            const config = sizesConfig[gender];
+            const container = document.getElementById('sizeButtons');
+
+            // Clear existing buttons
+            container.innerHTML = '';
+
+            // Add new buttons
+            config.sizes.forEach(size => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'size-btn';
+                button.textContent = size;
+                button.setAttribute('aria-label', `Select size ${size}`);
+                button.onclick = () => setSize(size);
+                container.appendChild(button);
+            });
+        }
+
+        function updateConversionNote(gender) {
+            const config = sizesConfig[gender];
+            const noteElement = document.getElementById('sizeConversionNote');
+
+            if (config.note) {
+                noteElement.textContent = config.note;
+                noteElement.classList.add('show');
+            } else {
+                noteElement.textContent = '';
+                noteElement.classList.remove('show');
+            }
+        }
+
+        function setSize(size) {
+            document.getElementById('size').value = size;
+        }
+
+        // Initialize size buttons on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            selectGender('male'); // Default to male sizing
+        });
+
+        // Common email typos
+        const commonTypos = {
+            'gmial.com': 'gmail.com',
+            'gmai.com': 'gmail.com',
+            'gmil.com': 'gmail.com',
+            'yahooo.com': 'yahoo.com',
+            'yaho.com': 'yahoo.com',
+            'hotmial.com': 'hotmail.com',
+            'hotmai.com': 'hotmail.com',
+            'outlok.com': 'outlook.com',
+            'outloo.com': 'outlook.com'
+        };
+
+        // Check for common email typos
+        function checkEmailTypos(email) {
+            const domain = email.split('@')[1];
+            if (!domain) return null;
+
+            if (commonTypos[domain.toLowerCase()]) {
+                return email.replace(domain, commonTypos[domain.toLowerCase()]);
+            }
+            return null;
+        }
+
+        // Real-time email validation (with visual indicators for color blind users)
+        function checkEmailMatch() {
+            const email = document.getElementById('email').value;
+            const confirmEmail = document.getElementById('confirmEmail').value;
+            const confirmField = document.getElementById('confirmEmail');
+            const indicator = document.getElementById('emailMatchIndicator');
+
+            if (confirmEmail.length === 0) {
+                confirmField.classList.remove('email-match', 'email-mismatch');
+                indicator.textContent = '';
+                return;
+            }
+
+            if (email === confirmEmail) {
+                confirmField.classList.add('email-match');
+                confirmField.classList.remove('email-mismatch');
+                indicator.textContent = '✓';
+                confirmField.setAttribute('aria-invalid', 'false');
+            } else {
+                confirmField.classList.add('email-mismatch');
+                confirmField.classList.remove('email-match');
+                indicator.textContent = '✗';
+                confirmField.setAttribute('aria-invalid', 'true');
+            }
+        }
+
+        document.getElementById('email').addEventListener('input', checkEmailMatch);
+        document.getElementById('confirmEmail').addEventListener('input', checkEmailMatch);
+
+        // Smart color field logic
+        function updateColorRequirement() {
+            const styleCode = document.getElementById('styleCode').value.trim();
+            const productUrl = document.getElementById('productUrl').value.trim();
+            const colorField = document.getElementById('color');
+            const colorOptional = document.getElementById('colorOptional');
+
+            if (styleCode || productUrl) {
+                // User provided style code or URL - color becomes optional
+                colorField.removeAttribute('required');
+                colorOptional.textContent = '(Optional if you provided link/code above)';
+                colorOptional.style.color = '#4caf50';
+            } else {
+                // No style code or URL - color is required
+                colorField.setAttribute('required', 'required');
+                colorOptional.textContent = '';
+            }
+        }
+
+        document.getElementById('styleCode').addEventListener('input', updateColorRequirement);
+        document.getElementById('productUrl').addEventListener('input', updateColorRequirement);
+
+        document.getElementById('alertForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Validate email addresses match
+            const email = document.getElementById('email').value;
+            const confirmEmail = document.getElementById('confirmEmail').value;
+
+            if (email !== confirmEmail) {
+                alert('Email addresses do not match. Please check and try again.');
+                document.getElementById('confirmEmail').focus();
+                return;
+            }
+
+            // Check for common typos
+            const suggestedEmail = checkEmailTypos(email);
+            if (suggestedEmail) {
+                const userConfirmed = confirm(
+                    `Did you mean "${suggestedEmail}" instead of "${email}"?\n\n` +
+                    `Click OK to use ${suggestedEmail}, or Cancel to keep ${email}`
+                );
+                if (userConfirmed) {
+                    document.getElementById('email').value = suggestedEmail;
+                    document.getElementById('confirmEmail').value = suggestedEmail;
+                }
+            }
+
+            const formData = {
+                gender: document.getElementById('gender').value,
+                brand: document.getElementById('brand').value,
+                model: document.getElementById('model').value || 'Any',
+                color: document.getElementById('color').value || 'See style code/URL for color',
+                styleCode: document.getElementById('styleCode').value || 'Not provided',
+                productUrl: document.getElementById('productUrl').value || 'Not provided',
+                size: document.getElementById('size').value,
+                email: document.getElementById('email').value, // Use current value (might be corrected)
+                timestamp: new Date().toISOString()
+            };
+
+            // Log what we have for debugging
+            console.log('Alert Request:', formData);
+
+            // Show user-friendly success message
+            const gender = formData.gender;
+            const brand = formData.brand;
+            const model = formData.model;
+            const size = formData.size;
+            let shoeDescription = brand;
+            if (model !== 'Any') shoeDescription += ' ' + model;
+
+            // Add gender context
+            const genderLabels = {
+                'male': "Men's",
+                'female': "Women's",
+                'unisex': 'Unisex'
+            };
+            shoeDescription += ` (${genderLabels[gender]} size ${size})`;
+
+            // Send to Google Sheets via Apps Script
+            try {
+                const response = await fetch('https://script.google.com/macros/s/AKfycbw6JQyj2IKwkgUV1aqNIxBtArz6wK9JBctUdP79WGK44UEBpngB3j_7ON0CPmDWTo8/exec', {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                console.log('Alert request sent to Google Sheets');
+            } catch (error) {
+                console.error('Error sending to Google Sheets:', error);
+                // Still show success to user - data was prepared correctly
+            }
+
+            // Show success message with details
+            const successMsg = document.getElementById('successMessage');
+            successMsg.innerHTML = `✓ Success! We'll email you at <strong>${formData.email}</strong> when ${shoeDescription} becomes available.`;
+            successMsg.classList.add('show');
+
+            // Reset form
+            document.getElementById('alertForm').reset();
+            updateColorRequirement(); // Reset color requirement
+
+            // Hide success message after 8 seconds
+            setTimeout(() => {
+                successMsg.classList.remove('show');
+            }, 8000);
+        });
+    </script>
+</body>
+</html>
