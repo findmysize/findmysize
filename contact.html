@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - FindMySize</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.7;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 50px 40px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 30px;
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background 0.2s ease;
+        }
+
+        .back-link:hover {
+            background: #5568d3;
+        }
+
+        h2 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        h2:first-of-type {
+            margin-top: 0;
+        }
+
+        p {
+            margin-bottom: 20px;
+            font-size: 1.05em;
+        }
+
+        .contact-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .contact-card {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            border-top: 4px solid #667eea;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .contact-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .contact-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .contact-card h3 {
+            color: #667eea;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+        }
+
+        .contact-card a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            word-break: break-word;
+        }
+
+        .contact-card a:hover {
+            text-decoration: underline;
+        }
+
+        .contact-card p {
+            margin-bottom: 10px;
+            font-size: 0.95em;
+            color: #666;
+        }
+
+        .highlight-box {
+            background: #f0f7ff;
+            border-left: 4px solid #667eea;
+            padding: 25px;
+            margin: 30px 0;
+            border-radius: 8px;
+        }
+
+        .faq-preview {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 25px;
+            margin: 30px 0;
+            border-radius: 8px;
+        }
+
+        .faq-preview h3 {
+            margin-top: 0;
+            color: #856404;
+        }
+
+        ul {
+            margin-left: 25px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        .response-time {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 30px 0;
+            font-size: 1.1em;
+        }
+
+        @media (max-width: 600px) {
+            .header {
+                padding: 40px 25px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .content {
+                padding: 30px 25px;
+            }
+
+            .contact-methods {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Contact Us</h1>
+            <p>We're here to help!</p>
+        </div>
+
+        <div class="content">
+            <a href="index.html" class="back-link">← Back to Home</a>
+
+            <p>Have a question, suggestion, or just want to say hi? We'd love to hear from you! Choose the best way to reach us below.</p>
+
+            <div class="response-time">
+                ⏱️ <strong>Response Time:</strong> We typically respond within 24-48 hours during business days
+            </div>
+
+            <h2>Get In Touch</h2>
+
+            <div class="contact-methods">
+                <div class="contact-card">
+                    <div class="contact-icon">📧</div>
+                    <h3>Email</h3>
+                    <p>Best for general inquiries, feedback, and support</p>
+                    <a href="mailto:findmysizealerts@gmail.com">findmysizealerts@gmail.com</a>
+                </div>
+
+                <div class="contact-card">
+                    <div class="contact-icon">🔒</div>
+                    <h3>Privacy Concerns</h3>
+                    <p>POPIA requests, data deletion, or privacy questions</p>
+                    <a href="mailto:findmysizealerts@gmail.com">findmysizealerts@gmail.com</a>
+                </div>
+
+                <div class="contact-card">
+                    <div class="contact-icon">🤝</div>
+                    <h3>Business Inquiries</h3>
+                    <p>Partnerships, affiliates, or media requests</p>
+                    <a href="mailto:findmysizealerts@gmail.com">findmysizealerts@gmail.com</a>
+                </div>
+            </div>
+
+            <h2>What Can We Help You With?</h2>
+
+            <div class="highlight-box">
+                <h3 style="margin-top: 0; color: #667eea;">Common Reasons to Contact Us:</h3>
+                <ul>
+                    <li><strong>Can't find your alert request?</strong> We can check our database</li>
+                    <li><strong>Want to update your email?</strong> Let us know your old and new address</li>
+                    <li><strong>Need to unsubscribe?</strong> Reply "UNSUBSCRIBE" to any notification email, or contact us</li>
+                    <li><strong>Shoe suggestion?</strong> Tell us which retailers we should monitor</li>
+                    <li><strong>Technical issues?</strong> Let us know what's not working</li>
+                    <li><strong>Privacy concerns?</strong> We take POPIA compliance seriously</li>
+                    <li><strong>Found a bug?</strong> Help us improve the service!</li>
+                    <li><strong>Feature request?</strong> We love hearing your ideas</li>
+                </ul>
+            </div>
+
+            <h2>Before You Contact Us</h2>
+
+            <div class="faq-preview">
+                <h3>Quick Answers (FAQ)</h3>
+                <p>Your question might already be answered in our <a href="faq.html" style="color: #856404; font-weight: 600;">FAQ page</a>. Common topics include:</p>
+                <ul style="margin-bottom: 0;">
+                    <li>How the service works</li>
+                    <li>Why you didn't receive a notification</li>
+                    <li>How to unsubscribe</li>
+                    <li>Privacy and data protection</li>
+                    <li>Affiliate disclosure questions</li>
+                </ul>
+            </div>
+
+            <h2>For Retailers & Partners</h2>
+
+            <p>If you're a South African shoe retailer interested in:</p>
+            <ul>
+                <li>Affiliate partnerships</li>
+                <li>Data feeds or API integration</li>
+                <li>Featured placement</li>
+                <li>Custom solutions</li>
+            </ul>
+
+            <p>Please email us at <a href="mailto:findmysizealerts@gmail.com" style="color: #667eea;">findmysizealerts@gmail.com</a> with "Partnership Inquiry" in the subject line.</p>
+
+            <h2>Office Hours</h2>
+
+            <div class="highlight-box">
+                <p><strong>Email Support:</strong> Monday - Friday, 9:00 AM - 5:00 PM (SAST)</p>
+                <p style="margin-bottom: 0;"><strong>Monitoring:</strong> 24/7 automated monitoring for shoe availability</p>
+            </div>
+
+            <p style="font-size: 0.95em; color: #666;">Emails received outside office hours will be answered on the next business day.</p>
+
+            <h2>Your Privacy Matters</h2>
+
+            <p>When you contact us, we may need to collect some personal information to help resolve your query. This information is handled in accordance with our <a href="privacy-policy.html" style="color: #667eea;">Privacy Policy</a> and POPIA regulations.</p>
+
+            <p>We will:</p>
+            <ul>
+                <li>Only use your information to respond to your inquiry</li>
+                <li>Keep your correspondence confidential</li>
+                <li>Delete communication records upon request</li>
+                <li>Never share your information with third parties without consent</li>
+            </ul>
+
+            <h2>Social Media</h2>
+
+            <p style="color: #666; font-style: italic;">We're currently focused on email support to provide the best, most personalized service. Social media channels may be added in the future!</p>
+
+            <h2>Feedback & Suggestions</h2>
+
+            <p>We're always looking to improve FindMySize. Your feedback helps us:</p>
+            <ul>
+                <li>Add new retailers to monitor</li>
+                <li>Improve our matching algorithms</li>
+                <li>Build new features you actually want</li>
+                <li>Fix bugs and issues</li>
+                <li>Make the service more user-friendly</li>
+            </ul>
+
+            <p>No suggestion is too small. If something would make FindMySize better for you, we want to hear it!</p>
+
+            <div class="highlight-box" style="margin-top: 40px; text-align: center;">
+                <h3 style="margin-top: 0; color: #667eea;">Ready to Reach Out?</h3>
+                <p style="font-size: 1.1em; margin-bottom: 15px;">Send us an email at:</p>
+                <p style="margin-bottom: 0;"><a href="mailto:findmysizealerts@gmail.com" style="color: #667eea; font-size: 1.2em; font-weight: 600; text-decoration: none;">findmysizealerts@gmail.com</a></p>
+            </div>
+
+            <p style="text-align: center; margin-top: 40px;">
+                <a href="index.html" class="back-link">← Back to Home</a>
+                <a href="faq.html" class="back-link" style="margin-left: 10px;">View FAQ →</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

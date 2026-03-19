@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - FindMySize</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.7;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.3em;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 50px 40px;
+        }
+
+        h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        h2:first-child {
+            margin-top: 0;
+        }
+
+        h3 {
+            color: #555;
+            font-size: 1.4em;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        p {
+            margin-bottom: 20px;
+            font-size: 1.05em;
+        }
+
+        .story-box {
+            background: #f8f9ff;
+            border-left: 4px solid #667eea;
+            padding: 25px;
+            margin: 30px 0;
+            border-radius: 8px;
+            font-style: italic;
+        }
+
+        .highlight-box {
+            background: #f0f7ff;
+            border-left: 4px solid #667eea;
+            padding: 25px;
+            margin: 30px 0;
+            border-radius: 8px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .value-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border-top: 4px solid #667eea;
+        }
+
+        .value-card h3 {
+            margin-top: 0;
+            color: #667eea;
+        }
+
+        ul {
+            margin-left: 25px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            margin: 40px -40px -50px -40px;
+            text-align: center;
+        }
+
+        .cta-section h2 {
+            color: white;
+            border: none;
+            margin: 0 0 20px 0;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 15px 35px;
+            background: white;
+            color: #667eea;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1em;
+            margin: 10px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 30px;
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background 0.2s ease;
+        }
+
+        .back-link:hover {
+            background: #5568d3;
+        }
+
+        @media (max-width: 600px) {
+            .header {
+                padding: 40px 25px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .header p {
+                font-size: 1.1em;
+            }
+
+            .content {
+                padding: 30px 25px;
+            }
+
+            h2 {
+                font-size: 1.6em;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .values-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>FindMySize</h1>
+            <p>Never miss your shoe size again</p>
+        </div>
+
+        <div class="content">
+            <a href="index.html" class="back-link">← Back to Home</a>
+
+            <h2>Our Story</h2>
+
+            <div class="story-box">
+                <p>"I was tired of constantly checking websites hoping my size would come back in stock. I'd find the perfect shoe, but my size was always sold out. Days later, I'd check again - still nothing. Then one day I'd forget to check, and that's exactly when it restocked. By the time I remembered, it was gone again."</p>
+                <p style="margin-bottom: 0;">— Arno Kotze, Founder</p>
+            </div>
+
+            <p>Sound familiar? That's the frustration that led to FindMySize.</p>
+
+            <p>We realized there had to be a better way. Why should you waste time manually checking multiple retailer websites every day, hoping your size miraculously appears? What if you could just tell us what you want, and we'd watch the stores for you?</p>
+
+            <p>That's exactly what FindMySize does.</p>
+
+            <h2>What We Do</h2>
+
+            <p>FindMySize is a <strong>free notification service</strong> for shoe shoppers in South Africa. We monitor popular online retailers and send you an email the moment your exact shoe size becomes available or goes on sale.</p>
+
+            <div class="highlight-box">
+                <h3 style="margin-top: 0; color: #667eea;">How It Works:</h3>
+                <ol>
+                    <li><strong>You tell us what you want</strong> - Brand, model, size, color, width - as specific or flexible as you like</li>
+                    <li><strong>We watch the stores</strong> - We monitor Takealot, Superbalist, Sportscene, and other South African retailers</li>
+                    <li><strong>You get notified instantly</strong> - When your shoe becomes available, we email you with a direct link</li>
+                    <li><strong>You decide what to do</strong> - Buy it, compare prices, or keep waiting - totally up to you</li>
+                </ol>
+            </div>
+
+            <p>No more daily checking. No more missed restocks. No more disappointment.</p>
+
+            <h2>Why We're Different</h2>
+
+            <div class="values-grid">
+                <div class="value-card">
+                    <h3>100% Free</h3>
+                    <p>No subscriptions, no hidden fees, no credit card required. Just sign up and get notified.</p>
+                </div>
+
+                <div class="value-card">
+                    <h3>Your Preferences Only</h3>
+                    <p>We only notify you about shoes YOU requested. No spam, no random promotions, no clutter.</p>
+                </div>
+
+                <div class="value-card">
+                    <h3>Multiple Retailers</h3>
+                    <p>We check across all major South African stores so you get the best chance of finding your size.</p>
+                </div>
+
+                <div class="value-card">
+                    <h3>Privacy First</h3>
+                    <p>We don't sell your data. We're POPIA compliant. You can unsubscribe anytime.</p>
+                </div>
+
+                <div class="value-card">
+                    <h3>Precise Matching</h3>
+                    <p>Got a style code or product link? We'll match that EXACT shoe. No guessing, no confusion.</p>
+                </div>
+
+                <div class="value-card">
+                    <h3>Width Options</h3>
+                    <p>Need wide or narrow shoes? We track those too - because not everyone wears regular width.</p>
+                </div>
+            </div>
+
+            <h2>Who We Help</h2>
+
+            <p>FindMySize is perfect for:</p>
+            <ul>
+                <li><strong>Popular Size Wearers</strong> - If you wear size 9, 10, or 11 (men's) or 7, 8, 9 (women's), you know these sizes sell out fast</li>
+                <li><strong>Wide/Narrow Feet</strong> - Finding wide or narrow shoes is already hard. Let us do the searching for you</li>
+                <li><strong>Specific Shoe Hunters</strong> - Found the perfect colorway but it's sold out? We'll tell you when it's back</li>
+                <li><strong>Sale Shoppers</strong> - Want a specific shoe but waiting for a sale? We'll notify you when the price drops</li>
+                <li><strong>Parents Shopping for Kids</strong> - Need multiple sizes for the whole family? Submit multiple requests in minutes</li>
+                <li><strong>Sneaker Enthusiasts</strong> - Looking for that limited edition drop? We've got you covered</li>
+            </ul>
+
+            <h2>How We Make Money</h2>
+
+            <p>You might be wondering: "If it's free, how do you make money?"</p>
+
+            <p>Fair question! Here's our honest answer:</p>
+
+            <p>We participate in <strong>affiliate marketing programs</strong> with South African retailers. When we send you a notification, the link may be an affiliate link. If you decide to purchase through that link, the retailer pays us a small commission (typically 3-8% of the sale).</p>
+
+            <div class="highlight-box">
+                <h3 style="margin-top: 0; color: #667eea;">Important Things You Should Know:</h3>
+                <ul style="margin-bottom: 0;">
+                    <li><strong>You pay the same price</strong> - Affiliate commissions don't increase what you pay. The retailer pays us, not you</li>
+                    <li><strong>We don't change our recommendations</strong> - We notify you based ONLY on what YOU requested, not which retailer pays better commissions</li>
+                    <li><strong>Full transparency</strong> - We're upfront about this in our Terms of Service and Privacy Policy</li>
+                    <li><strong>You're in control</strong> - You can shop wherever you want. Our links are just convenient shortcuts</li>
+                </ul>
+            </div>
+
+            <p>This model lets us keep the service free for you while covering our costs for monitoring retailers and sending notifications.</p>
+
+            <h2>Our Commitment to You</h2>
+
+            <p>When you use FindMySize, you can count on us to:</p>
+
+            <ul>
+                <li><strong>Be honest and transparent</strong> - About how we work, how we make money, and what we can and can't do</li>
+                <li><strong>Respect your inbox</strong> - We only email you about shoes you specifically requested</li>
+                <li><strong>Protect your privacy</strong> - We comply with POPIA and never sell your data</li>
+                <li><strong>Keep improving</strong> - We're always adding more retailers and better matching features</li>
+                <li><strong>Listen to feedback</strong> - Got suggestions? We want to hear them</li>
+            </ul>
+
+            <h2>Meet the Founder</h2>
+
+            <div class="story-box">
+                <p><strong>Arno Kotze</strong> is a shoe shopper who got tired of the endless cycle of checking websites and missing restocks. After one too many "I checked yesterday and it wasn't there!" moments, he decided to build FindMySize.</p>
+
+                <p style="margin-bottom: 0;">"I built this for people like me - people who know exactly what they want but don't have time to check 10 different websites three times a day. Now I use FindMySize myself, and it's saved me countless hours of frustration."</p>
+            </div>
+
+            <h2>Current Stats</h2>
+
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">Free Forever</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">10+</div>
+                    <div class="stat-label">Retailers Monitored</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">Always Watching</div>
+                </div>
+            </div>
+
+            <h2>What We're NOT</h2>
+
+            <p>To set clear expectations:</p>
+
+            <ul>
+                <li>We are <strong>NOT</strong> a shoe store - We don't sell shoes, we just help you find them</li>
+                <li>We are <strong>NOT</strong> affiliated with retailers - We're independent and monitor all stores equally</li>
+                <li>We <strong>DON'T</strong> guarantee availability - Stock changes constantly, and popular sizes sell fast</li>
+                <li>We <strong>DON'T</strong> control pricing - Retailers set their own prices</li>
+                <li>We <strong>DON'T</strong> handle returns or customer service - That's between you and the retailer</li>
+            </ul>
+
+            <p>We're here to save you time and help you find your shoes. The rest is up to you and the retailers.</p>
+
+            <h2>Our Vision</h2>
+
+            <p>We're building FindMySize to become South Africa's go-to resource for shoe shoppers. Our vision is simple:</p>
+
+            <div class="highlight-box">
+                <p style="margin-bottom: 0; font-size: 1.15em;"><strong>"No one should miss out on the perfect shoe just because they didn't check a website at the right time."</strong></p>
+            </div>
+
+            <p>We're starting with shoes because that's where the pain point is most obvious. But who knows? Maybe one day we'll expand to other hard-to-find products.</p>
+
+            <p>For now, we're focused on making FindMySize the best shoe notification service in South Africa.</p>
+
+            <h2>Questions or Feedback?</h2>
+
+            <p>We'd love to hear from you! Whether you have:</p>
+            <ul>
+                <li>Questions about how the service works</li>
+                <li>Suggestions for retailers we should add</li>
+                <li>Feedback on your experience</li>
+                <li>Ideas for new features</li>
+            </ul>
+
+            <p>Get in touch at: <a href="mailto:findmysizealerts@gmail.com" style="color: #667eea;">findmysizealerts@gmail.com</a></p>
+
+            <p>We read every email and respond as quickly as we can.</p>
+        </div>
+
+        <div class="cta-section">
+            <h2>Ready to Never Miss Your Size Again?</h2>
+            <p style="font-size: 1.1em; margin-bottom: 30px;">Sign up now - it takes less than 60 seconds</p>
+            <a href="index.html" class="cta-button">Get Started Free</a>
+        </div>
+    </div>
+</body>
+</html>

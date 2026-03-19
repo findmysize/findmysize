@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ - Frequently Asked Questions - FindMySize</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.7;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 50px 40px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 30px;
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background 0.2s ease;
+        }
+
+        .back-link:hover {
+            background: #5568d3;
+        }
+
+        .search-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .search-box p {
+            margin-bottom: 0;
+            color: #666;
+        }
+
+        .category {
+            margin-bottom: 50px;
+        }
+
+        .category-title {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+            display: flex;
+            align-items: center;
+        }
+
+        .category-icon {
+            margin-right: 15px;
+            font-size: 1.2em;
+        }
+
+        .faq-item {
+            background: #f8f9fa;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid transparent;
+            transition: border-color 0.2s ease;
+        }
+
+        .faq-item:hover {
+            border-color: #667eea;
+        }
+
+        .faq-question {
+            background: #f8f9fa;
+            padding: 20px 25px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.1em;
+            color: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+
+        .faq-question:hover {
+            background: #eef1ff;
+        }
+
+        .faq-arrow {
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+            color: #667eea;
+        }
+
+        .faq-answer {
+            padding: 0 25px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+        }
+
+        .faq-item.active .faq-answer {
+            padding: 20px 25px;
+            max-height: 1000px;
+        }
+
+        .faq-item.active .faq-arrow {
+            transform: rotate(90deg);
+        }
+
+        .faq-answer p {
+            margin-bottom: 15px;
+        }
+
+        .faq-answer ul {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+
+        .faq-answer li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background: #f0f7ff;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .cta-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .cta-box h3 {
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .cta-box a {
+            color: white;
+            font-weight: 600;
+            text-decoration: underline;
+        }
+
+        a {
+            color: #667eea;
+        }
+
+        @media (max-width: 600px) {
+            .header {
+                padding: 40px 25px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .content {
+                padding: 30px 25px;
+            }
+
+            .category-title {
+                font-size: 1.5em;
+            }
+
+            .faq-question {
+                font-size: 1em;
+                padding: 15px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Frequently Asked Questions</h1>
+            <p>Everything you need to know about FindMySize</p>
+        </div>
+
+        <div class="content">
+            <a href="index.html" class="back-link">← Back to Home</a>
+
+            <div class="search-box">
+                <p>💡 <strong>Tip:</strong> Use Ctrl+F (or Cmd+F on Mac) to search for specific topics on this page</p>
+            </div>
+
+            <!-- GETTING STARTED -->
+            <div class="category">
+                <h2 class="category-title">
+                    <span class="category-icon">🚀</span>
+                    Getting Started
+                </h2>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What is FindMySize?
+                        <span class="faq-arrow">›</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>FindMySize is a free notification service that helps you find shoes in your size. Instead of manually checking multiple retailer websites every day, you tell us what shoe you want, and we monitor South African retailers for you. When your requested shoe becomes available or goes on sale, we email you with a direct link.</p>
+                        <p>It's like having a personal shopping assistant watching the stores 24/7 so you never miss a restock again!</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        How much does it cost?
+                        <span class="faq-arrow">›</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p><strong>FindMySize is 100% free.</strong></p>
+                        <p>No subscription fees, no hidden costs, no credit card required. Just sign up and get notified. We make money through affiliate commissions from retailers (see "How We Make Money" below), but this doesn't cost you anything extra.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        How do I sign up?
+                        <span class="faq-arrow">›</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>It's super easy:</p>
+                        <ol>
+                            <li>Go to the <a href="index.html">FindMySize homepage</a></li>
+                            <li>Fill out the form with your shoe details (brand, size, etc.)</li>
+                            <li>Enter your email address</li>
+                            <li>Click "Notify Me When Available"</li>
+                        </ol>
+                        <p>That's it! We'll start monitoring for your shoe immediately. The whole process takes less than 60 seconds.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Can I request multiple shoes?
+                        <span class="faq-arrow">›</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p><strong>Yes!</strong> You can submit as many alert requests as you want. Each submission takes about 30 seconds.</p>
+                        <p>This is perfect for:</p>
+                        <ul>
+                            <li>Shopping for the whole family</li>
+                            <li>Requesting the same shoe in multiple colors</li>
+                            <li>Tracking different brands/models</li>
+                            <li>Monitoring both regular and sale prices</li>
+                        </ul>
+                        <p>Just fill out the form again for each shoe you want to track.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HOW IT WORKS -->
+            <div class="category">
+                <h2 class="category-title">
+                    <span class="category-icon">⚙️</span>
+                    How It Works
+                </h2>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Which retailers do you monitor?
+                        <span class="faq-arrow">›</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>We monitor popular South African online shoe retailers including:</p>
+                        <ul>
+                            <li>Takealot</li>
+                            <li>Superbalist</li>
+                            <li>Sportscene</li>
+                            <li>Totalsports</li>
+                            <li>The Athletes Foot</li>
+                            <li>Cape Union Mart</li>
+                            <li>Edgars</li>
+                            <li>And more...</li>
+                        </ul>
+                        <p>We're constantly adding new retailers. Have a suggestion? <a href="contact.html">Contact us</a>!</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        How fast will I be notified?
+                        <span class="faq-arrow">›</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>We check retailers regularly, but timing varies:</p>
+                        <ul>
+                            <li><strong>Typical notification:</strong> Within hours of a shoe becoming available</li>
+                            <li><strong>Popular sizes:</strong> Very fast - we prioritize high-demand sizes</li>
+                            <li><strong>Weekend restocks:</strong> May take slightly longer</li>
+                        </ul>
+                        <div class="highlight-box">
+                            <p><strong>Important:</strong> Even with fast notifications, popular sizes can sell out quickly. Act fast when you receive an alert!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What if I don't know the exact style code?
+                        <span class="faq-arrow">›</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p><strong>That's okay!</strong> Style codes are optional. You can provide:</p>
+                        <ul>
+                            <li><strong>Best:</strong> Style code (e.g., FD2722-001) - guarantees exact match</li>
+                            <li><strong>Good:</strong> Product URL from any retailer - we'll match it exactly</li>
+                            <li><strong>Also works:</strong> Just brand, model, color, and size - we'll do our best to match</li>
+                        </ul>
+                        <p>The more specific you are, the better we can match, but we'll work with whatever info you provide!</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Do you track shoe widths (wide, narrow)?
+                        <span class="faq-arrow">›</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p><strong>Yes!</strong> We have a width field on the form where you can specify:</p>
+                        <ul>
+                            <li>Regular / Standard (default)</li>
+                            <li>Wide</li>
+                            <li>Extra Wide</li>
+                            <li>Narrow</li>
+                        </ul>
+                        <p>If you're not sure, select "Regular" - it fits most people. Only specify wide or narrow if you know you need it.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NOTIFICATIONS -->
+            <div class="category">
+                <h2 class="category-title">
+                    <span class="category-icon">📧</span>
+                    Notifications & Emails
+                </h2>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        I didn't receive a notification. Why?
+                        <span class="faq-arrow">›</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Several possible reasons:</p>
+                        <ul>
+                            <li><strong>Check spam folder</strong> - Sometimes emails get filtered</li>
+                            <li><strong>Shoe not restocked yet</strong> - We can only notify when it's actually available</li>
+                            <li><strong>Email typo</strong> - Double-check the email you provided</li>
+                            <li><strong>Popular size sold out fast</strong> - By the time we checked, it was gone again</li>
+                            <li><strong>Exact match not found</strong> - If you were vague about model/color, we might not have found the right one</li>
+                        </ul>
+                        <div class="highlight-box">
+                            <p><strong>Pro tip:</strong> Add our email address (findmysizealerts@gmail.com) to your contacts to ensure delivery!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Will I get spam emails?
+                        <span class="faq-arrow">›</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p><strong>No!</strong> We ONLY email you about shoes YOU specifically requested. </p>
+                        <p>You will NOT receive:</p>
+                        <ul>
+                            <li>Random product promotions</li>
+                            <li>Shoes you didn't ask for</li>
+                            <li>Newsletter emails</li>
+                            <li>Marketing messages</li>
+                            <li>Third-party advertising</li>
+                        </ul>
+                        <p>If you requested 3 shoes, you'll only get notifications about those 3 shoes.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        How do I unsubscribe?
+                        <span class="faq-arrow">›</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Easy! You have two options:</p>
+                        <ol>
+                            <li><strong>Reply to any notification email</strong> with "UNSUBSCRIBE" in the subject or body</li>
+                            <li><strong>Contact us directly</strong> at <a href="mailto:findmysizealerts@gmail.com">findmysizealerts@gmail.com</a></li>
+                        </ol>
+                        <p>We'll remove your data within 48 hours and confirm via email.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Can I update my email address?
+                        <span class="faq-arrow">›</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p><strong>Yes!</strong> Just <a href="contact.html">contact us</a> with:</p>
+                        <ul>
+                            <li>Your old email address</li>
+                            <li>Your new email address</li>
+                            <li>Which shoe request(s) to update</li>
+                        </ul>
+                        <p>We'll update it within 24-48 hours.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PURCHASING -->
+            <div class="category">
+                <h2 class="category-title">
+                    <span class="category-icon">🛒</span>
+                    Purchasing & Pricing
+                </h2>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Do you sell the shoes?
+                        <span class="faq-arrow">›</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p><strong>No.</strong> FindMySize is NOT a shoe store.</p>
+                        <p>We're a notification service that helps you FIND shoes at other retailers. When we notify you, we provide a link to the retailer where you can purchase the shoe directly from them.</p>
+                        <p>Think of us as your personal shopping assistant who watches stores for you, not the store itself.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Are the prices guaranteed?
+                        <span class="faq-arrow">›</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p><strong>No.</strong> We show you the price at the time we found the shoe, but:</p>
+                        <ul>
+                            <li>Retailers can change prices at any time</li>
+                            <li>Sales may have ended by the time you click</li>
+                            <li>Prices may vary by region or shipping</li>
+                        </ul>
+                        <p><strong>Always check the retailer's website for the current price before purchasing.</strong></p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What if the shoe is sold out when I click?
+                        <span class="faq-arrow">›</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Unfortunately, this can happen. Popular sizes sell out FAST - sometimes within minutes.</p>
+                        <p><strong>Tips to improve your chances:</strong></p>
+                        <ul>
+                            <li>Enable mobile notifications for emails</li>
+                            <li>Act immediately when you receive an alert</li>
+                            <li>Keep payment info saved on retailer sites for faster checkout</li>
+                            <li>Submit your request again - maybe it'll restock again!</li>
+                        </ul>
+                        <p>We can't control how fast shoes sell, but we notify you as quickly as possible.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What about returns or shipping?
+                        <span class="faq-arrow">›</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Returns, shipping, customer service, and all purchase-related issues are handled by the retailer, not FindMySize.</p>
+                        <p>Each retailer has their own policies for:</p>
+                        <ul>
+                            <li>Shipping costs and delivery times</li>
+                            <li>Return windows and conditions</li>
+                            <li>Refund processing</li>
+                            <li>Customer support</li>
+                        </ul>
+                        <p><strong>Always check the retailer's policies before purchasing.</strong> If you have issues with an order, contact the retailer directly.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MONEY & AFFILIATES -->
+            <div class="category">
+                <h2 class="category-title">
+                    <span class="category-icon">💰</span>
+                    How We Make Money
+                </h2>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        If it's free, how do you make money?
+                        <span class="faq-arrow">›</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Great question! We're transparent about this:</p>
+                        <p><strong>We earn affiliate commissions.</strong> When we send you a notification, the link may be an affiliate link. If you purchase through that link, the retailer pays us a small commission (typically 3-8% of the sale).</p>
+                        <div class="highlight-box">
+                            <p><strong>Important:</strong> This commission does NOT increase the price you pay. The retailer pays us from their margin - you pay the exact same price as any other customer.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Does the affiliate model affect your recommendations?
+                        <span class="faq-arrow">›</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p><strong>No.</strong> We have a strict policy:</p>
+                        <p>We notify you based ONLY on:</p>
+                        <ul>
+                            <li>YOUR requested preferences (brand, size, color, etc.)</li>
+                            <li>Actual product availability at retailers</li>
+                        </ul>
+                        <p>We do NOT:</p>
+                        <ul>
+                            <li>Prioritize retailers that pay higher commissions</li>
+                            <li>Send you shoes you didn't request</li>
+                            <li>Recommend products just to earn commissions</li>
+                        </ul>
+                        <p>Our reputation depends on being trustworthy. If we spammed you with unwanted products, you'd unsubscribe immediately - and we'd lose your trust.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Do I have to use your affiliate links?
+                        <span class="faq-arrow">›</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p><strong>No.</strong> You're free to shop wherever you want!</p>
+                        <p>Our links are just convenient shortcuts to the product we found. You can:</p>
+                        <ul>
+                            <li>Use our link (helps support the service)</li>
+                            <li>Search for the shoe yourself on other sites</li>
+                            <li>Compare prices across retailers</li>
+                            <li>Buy in-store if you prefer</li>
+                        </ul>
+                        <p>We just appreciate if you use our links when convenient - it helps us keep the service free for everyone!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRIVACY & SECURITY -->
+            <div class="category">
+                <h2 class="category-title">
+                    <span class="category-icon">🔒</span>
+                    Privacy & Security
+                </h2>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What data do you collect?
+                        <span class="faq-arrow">›</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>We collect only what we need to provide the service:</p>
+                        <ul>
+                            <li><strong>Email address</strong> - To send you notifications</li>
+                            <li><strong>Shoe preferences</strong> - Brand, model, size, width, color, gender</li>
+                            <li><strong>Optional info</strong> - Style codes, product URLs you provide</li>
+                            <li><strong>Timestamp</strong> - When you submitted your request</li>
+                        </ul>
+                        <p>We do NOT collect:</p>
+                        <ul>
+                            <li>Payment information (we don't handle purchases)</li>
+                            <li>Browsing history or cookies</li>
+                            <li>Personal identification beyond email</li>
+                            <li>Location data (beyond what's in your IP address for security)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Is my data safe?
+                        <span class="faq-arrow">›</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p><strong>Yes.</strong> We take security seriously:</p>
+                        <ul>
+                            <li>Data is stored securely in Google Sheets with restricted access</li>
+                            <li>We use HTTPS encryption for all data transmission</li>
+                            <li>Only authorized personnel can access your data</li>
+                            <li>We comply with POPIA (South African data protection law)</li>
+                            <li>We never sell your data to third parties</li>
+                        </ul>
+                        <p>Read our full <a href="privacy-policy.html">Privacy Policy</a> for details.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Can I request my data or have it deleted?
+                        <span class="faq-arrow">›</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p><strong>Yes!</strong> Under POPIA, you have the right to:</p>
+                        <ul>
+                            <li><strong>Access:</strong> Request a copy of your data</li>
+                            <li><strong>Correction:</strong> Fix any inaccurate information</li>
+                            <li><strong>Deletion:</strong> Have your data completely removed</li>
+                            <li><strong>Portability:</strong> Get your data in a readable format</li>
+                        </ul>
+                        <p><a href="contact.html">Contact us</a> to exercise any of these rights. We'll respond within 30 days as required by law.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Do you share my email with retailers?
+                        <span class="faq-arrow">›</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p><strong>No.</strong> Absolutely not.</p>
+                        <p>Your email address is private and used ONLY to send you notifications about shoes YOU requested. We never share, sell, or give your email to retailers, advertisers, or anyone else.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TROUBLESHOOTING -->
+            <div class="category">
+                <h2 class="category-title">
+                    <span class="category-icon">🔧</span>
+                    Troubleshooting
+                </h2>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        The form isn't working / I get an error
+                        <span class="faq-arrow">›</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Try these steps:</p>
+                        <ol>
+                            <li><strong>Check required fields</strong> - Make sure you filled in brand, size, and email</li>
+                            <li><strong>Email match</strong> - Confirm your email addresses match exactly</li>
+                            <li><strong>Clear browser cache</strong> - Sometimes old data causes issues</li>
+                            <li><strong>Try a different browser</strong> - Chrome or Firefox work best</li>
+                            <li><strong>Disable ad blockers</strong> - They can sometimes interfere</li>
+                        </ol>
+                        <p>Still not working? <a href="contact.html">Contact us</a> with details about the error and we'll help!</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        I submitted a request but haven't heard anything in weeks
+                        <span class="faq-arrow">›</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>A few possibilities:</p>
+                        <ul>
+                            <li><strong>Shoe hasn't restocked</strong> - Some shoes are genuinely hard to find or discontinued</li>
+                            <li><strong>Check spam folder</strong> - Our emails might be getting filtered</li>
+                            <li><strong>Email typo</strong> - Double-check the address you provided</li>
+                            <li><strong>Sold out too fast</strong> - Popular sizes can sell in minutes</li>
+                        </ul>
+                        <p>Want us to check if your request is in our system? <a href="contact.html">Contact us</a> with the details of what you requested.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        The link in my notification doesn't work
+                        <span class="faq-arrow">›</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>This usually means the product is no longer available at that retailer. It could be:</p>
+                        <ul>
+                            <li>Sold out (happens fast with popular sizes)</li>
+                            <li>Removed from the website</li>
+                            <li>Temporarily unavailable</li>
+                        </ul>
+                        <p><strong>What to do:</strong></p>
+                        <ul>
+                            <li>Check other retailers manually</li>
+                            <li>Submit your request again - it might restock later</li>
+                            <li>Contact the retailer directly to ask about availability</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STILL HAVE QUESTIONS? -->
+            <div class="cta-box">
+                <h3>Still Have Questions?</h3>
+                <p>Can't find what you're looking for? We're here to help!</p>
+                <p style="margin-top: 20px;"><a href="contact.html">Contact Us →</a></p>
+            </div>
+
+            <p style="text-align: center; margin-top: 40px;">
+                <a href="index.html" class="back-link">← Back to Home</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // FAQ accordion functionality
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                const faqItem = question.parentElement;
+                const isActive = faqItem.classList.contains('active');
+
+                // Close all other items
+                document.querySelectorAll('.faq-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+
+                // Toggle current item
+                if (!isActive) {
+                    faqItem.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

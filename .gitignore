@@ -1,0 +1,60 @@
+# Google Sheets Data (NEVER PUSH - Contains User Emails!)
+*.csv
+sample-data.csv
+
+# Personal Notes
+*NOTES*.md
+*TODO*.md
+scratch.txt
+
+# API Keys & Secrets
+.env
+.env.local
+config.local.js
+secrets.json
+
+# Google Apps Script Deployment Info
+.clasp.json
+appsscript.json
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary Files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Backup Files
+*.bak
+*.backup
+backup/
+
+# Test Data (if you create test files)
+test-data/
+test-*.csv
+
+# Personal Customizations
+CUSTOM-*.md
