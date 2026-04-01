@@ -476,9 +476,15 @@
             <div class="divider">your details (optional)</div>
 
             <div class="form-group">
+                <label for="reporterName">Your Name <span style="color:#999; font-weight:normal;">(Optional)</span></label>
+                <input type="text" id="reporterName" name="reporterName" placeholder="e.g., Bill, Sarah, or just leave blank">
+                <small>We'll give you a shoutout — e.g. "Thanks to Bill for finding this!" First name only is fine.</small>
+            </div>
+
+            <div class="form-group">
                 <label for="reporterEmail">Your Email <span style="color:#999; font-weight:normal;">(Optional)</span></label>
                 <input type="email" id="reporterEmail" name="reporterEmail" placeholder="your@email.com">
-                <small>We'll give you credit and let you know when we've notified users!</small>
+                <small>Only used to let you know when we've notified users. Never shared or displayed publicly.</small>
             </div>
 
             <button type="submit" class="submit-btn stock-btn" id="submitBtn">
@@ -588,7 +594,8 @@
                 originalPrice: currentMode === 'special' ? (document.getElementById('originalPrice').value || 'Not specified') : 'N/A',
                 saleEndDate: currentMode === 'special' ? (document.getElementById('saleEndDate').value || 'Not specified') : 'N/A',
                 notes: document.getElementById('notes').value || 'None',
-                reporterEmail: document.getElementById('reporterEmail').value || 'Anonymous',
+                reporterName: document.getElementById('reporterName').value || 'Anonymous',
+                reporterEmail: document.getElementById('reporterEmail').value || 'Not provided',
                 timestamp: new Date().toISOString()
             };
 
@@ -605,10 +612,12 @@
             }
 
             // Show success message
+            const name = document.getElementById('reporterName').value.trim();
+            const thanksName = name ? `, ${name}` : '';
             const msg = document.getElementById('successMessage');
             msg.textContent = currentMode === 'stock'
-                ? '✓ Stock reported! We\'ll verify and notify everyone waiting for this shoe. Thank you!'
-                : '✓ Special reported! We\'ll alert users about this deal right away. You\'re awesome!';
+                ? `✓ Stock reported! Thanks${thanksName}! We'll verify and notify everyone waiting for this shoe.`
+                : `✓ Special reported! Thanks${thanksName}! We'll alert users about this deal right away.`;
             msg.classList.add('show');
 
             this.reset();
