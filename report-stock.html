@@ -320,6 +320,16 @@
             text-decoration: underline;
         }
 
+        /* Other input field */
+        .other-input {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .other-input.show {
+            display: block;
+        }
+
         /* Required star */
         .required {
             color: #f44336;
@@ -386,7 +396,7 @@
 
             <div class="form-group">
                 <label for="retailer">Retailer <span class="required">*</span></label>
-                <select id="retailer" name="retailer" required>
+                <select id="retailer" name="retailer" required onchange="toggleOther('retailer')">
                     <option value="">Select retailer</option>
                     <option value="Superbalist">Superbalist</option>
                     <option value="Zando">Zando</option>
@@ -399,11 +409,13 @@
                     <option value="Amazon">Amazon</option>
                     <option value="Other">Other</option>
                 </select>
+                <input type="text" id="retailerOther" name="retailerOther"
+                    class="other-input" placeholder="Please type the retailer name">
             </div>
 
             <div class="form-group">
                 <label for="brand">Brand <span class="required">*</span></label>
-                <select id="brand" name="brand" required>
+                <select id="brand" name="brand" required onchange="toggleOther('brand')">
                     <option value="">Select a brand</option>
                     <option value="Nike">Nike</option>
                     <option value="Adidas">Adidas</option>
@@ -416,6 +428,8 @@
                     <option value="Hoka">Hoka</option>
                     <option value="Other">Other</option>
                 </select>
+                <input type="text" id="brandOther" name="brandOther"
+                    class="other-input" placeholder="Please type the brand name">
             </div>
 
             <div class="form-group">
@@ -484,6 +498,15 @@
     <script>
         let currentMode = 'stock';
 
+        function toggleOther(fieldId) {
+            const select = document.getElementById(fieldId);
+            const otherInput = document.getElementById(fieldId + 'Other');
+            const isOther = select.value === 'Other';
+            otherInput.classList.toggle('show', isOther);
+            otherInput.required = isOther;
+            if (isOther) otherInput.focus();
+        }
+
         function setMode(mode) {
             currentMode = mode;
 
@@ -551,11 +574,14 @@
         document.getElementById('reportForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
+            const retailerVal = document.getElementById('retailer').value;
+            const brandVal = document.getElementById('brand').value;
+
             const formData = {
                 reportType: currentMode,
                 productUrl: document.getElementById('productUrl').value,
-                retailer: document.getElementById('retailer').value,
-                brand: document.getElementById('brand').value,
+                retailer: retailerVal === 'Other' ? document.getElementById('retailerOther').value : retailerVal,
+                brand: brandVal === 'Other' ? document.getElementById('brandOther').value : brandVal,
                 model: document.getElementById('model').value || 'Not specified',
                 sizesAvailable: document.getElementById('sizesAvailable').value,
                 currentPrice: document.getElementById('currentPrice').value || 'Not specified',
