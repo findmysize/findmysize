@@ -794,7 +794,7 @@
 
             <div class="form-group">
                 <label for="brand">Brand</label>
-                <select id="brand" name="brand" required>
+                <select id="brand" name="brand" required onchange="toggleBrandOther()">
                     <option value="">Select a brand</option>
                     <option value="Nike">Nike</option>
                     <option value="Adidas">Adidas</option>
@@ -806,6 +806,9 @@
                     <option value="Brooks">Brooks</option>
                     <option value="Other">Other</option>
                 </select>
+                <input type="text" id="brandOther" name="brandOther"
+                    style="display:none; margin-top:10px;"
+                    placeholder="Please type the brand name">
             </div>
 
             <div class="form-group">
@@ -897,6 +900,15 @@
 
     <script>
         // Size configurations for different genders
+        function toggleBrandOther() {
+            const select = document.getElementById('brand');
+            const otherInput = document.getElementById('brandOther');
+            const isOther = select.value === 'Other';
+            otherInput.style.display = isOther ? 'block' : 'none';
+            otherInput.required = isOther;
+            if (isOther) otherInput.focus();
+        }
+
         const sizesConfig = {
             male: {
                 sizes: ['7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5', '11', '11.5', '12', '12.5'],
@@ -1093,7 +1105,7 @@
 
             const formData = {
                 gender: document.getElementById('gender').value,
-                brand: document.getElementById('brand').value,
+                brand: document.getElementById('brand').value === 'Other' ? document.getElementById('brandOther').value : document.getElementById('brand').value,
                 model: document.getElementById('model').value || 'Any',
                 color: document.getElementById('color').value || 'See style code/URL for color',
                 styleCode: document.getElementById('styleCode').value || 'Not provided',
