@@ -17,10 +17,10 @@
 //
 // ------------------------------------------------------------
 // ALERT REQUESTS tab - Row 1 headers (copy exactly):
-// Timestamp | Gender | Brand | Model | Color | Style Code | Product URL | Size | Width | Email | Status | Notified At | Retailer Found | Price When Notified | Notes
+// Timestamp | Gender | Brand | Model | Color | Style Code | Size | Width | Email | Status | Notified At | Retailer Found | Price When Notified | Notes | Product URL
 //
 // STOCK REPORTS tab - Row 1 headers (copy exactly):
-// Timestamp | Report Type | Retailer | Brand | Model | Sizes Available | Current Price | Original Price | Sale End Date | Notes | Reporter Name | Reporter Email | Product URL | Status
+// Timestamp | Report Type | Retailer | Brand | Model | Sizes Available | Current Price | Original Price | Sale End Date | Notes | Reporter Name | Reporter Email | Status | Product URL
 // ============================================================
 
 
@@ -71,15 +71,15 @@ function saveAlertRequest(ss, data) {
     data.model || '',        // D: Model
     data.color || '',        // E: Color
     data.styleCode || '',    // F: Style Code
-    data.productUrl || '',   // G: Product URL
-    data.size || '',         // H: Size
-    data.width || 'Regular', // I: Width
-    data.email || '',        // J: Email
-    'Pending',               // K: Status
-    '',                      // L: Notified At
-    '',                      // M: Retailer Found
-    '',                      // N: Price When Notified
-    ''                       // O: Notes
+    data.size || '',         // G: Size
+    data.width || 'Regular', // H: Width
+    data.email || '',        // I: Email
+    'Pending',               // J: Status
+    '',                      // K: Notified At
+    '',                      // L: Retailer Found
+    '',                      // M: Price When Notified
+    '',                      // N: Notes
+    data.productUrl || ''    // O: Product URL (moved to end)
   ]);
 
   Logger.log('Alert request saved: ' + data.brand + ' ' + data.size + ' for ' + data.email);
@@ -103,8 +103,8 @@ function saveStockReport(ss, data) {
     data.notes || '',              // J: Notes
     data.reporterName || 'Anonymous', // K: Reporter Name
     data.reporterEmail || '',      // L: Reporter Email
-    data.productUrl || '',         // M: Product URL
-    'New'                          // N: Status (New/Verified/Notified/Expired)
+    'New',                         // M: Status (New/Verified/Notified/Expired)
+    data.productUrl || ''          // N: Product URL (moved to end)
   ]);
 
   Logger.log('Stock report saved: ' + data.reportType + ' - ' + data.brand + ' at ' + data.retailer);
@@ -154,10 +154,10 @@ function notifyUsersForShoe(gender, brand, model, color, size, width, retailerLi
     const rowModel     = String(row[3]).trim();
     const rowColor     = String(row[4]).trim();
     const rowStyleCode = String(row[5]).trim();
-    const rowSize      = String(row[7]).trim();
-    const rowWidth     = String(row[8] || 'Regular').trim();
-    const rowEmail     = String(row[9]).trim();
-    const rowStatus    = String(row[10]).toLowerCase().trim();
+    const rowSize      = String(row[6]).trim();
+    const rowWidth     = String(row[7] || 'Regular').trim();
+    const rowEmail     = String(row[8]).trim();
+    const rowStatus    = String(row[9]).toLowerCase().trim();
 
     // Skip already notified rows
     if (rowStatus !== 'pending') { alreadyNotified++; continue; }
@@ -192,10 +192,10 @@ function notifyUsersForShoe(gender, brand, model, color, size, width, retailerLi
       });
 
       // Update row status
-      sheet.getRange(i + 1, 11).setValue('Notified');
-      sheet.getRange(i + 1, 12).setValue(new Date());
-      sheet.getRange(i + 1, 13).setValue(retailerName || '');
-      sheet.getRange(i + 1, 14).setValue(price || '');
+      sheet.getRange(i + 1, 10).setValue('Notified');  // J: Status
+      sheet.getRange(i + 1, 11).setValue(new Date());  // K: Notified At
+      sheet.getRange(i + 1, 12).setValue(retailerName || ''); // L: Retailer Found
+      sheet.getRange(i + 1, 13).setValue(price || ''); // M: Price When Notified
 
       Logger.log('✓ Notified: ' + rowEmail);
     }
@@ -225,10 +225,10 @@ function sendNotificationEmail(rowNumber, retailerLink, price, retailerName, rep
   const model      = row[3];
   const color      = row[4];
   const styleCode  = row[5];
-  const size       = row[7];
-  const width      = row[8] || 'Regular';
-  const email      = row[9];
-  const status     = String(row[10]).toLowerCase();
+  const size       = row[6];
+  const width      = row[7] || 'Regular';
+  const email      = row[8];
+  const status     = String(row[9]).toLowerCase();
 
   if (status !== 'pending') {
     Logger.log('Skipping row ' + rowNumber + ' - status is already: ' + status);
@@ -249,10 +249,10 @@ function sendNotificationEmail(rowNumber, retailerLink, price, retailerName, rep
 
   MailApp.sendEmail({ to: email, subject: subject, htmlBody: htmlBody, noReply: true });
 
-  sheet.getRange(rowNumber, 11).setValue('Notified');
-  sheet.getRange(rowNumber, 12).setValue(new Date());
-  if (retailerName) sheet.getRange(rowNumber, 13).setValue(retailerName);
-  if (price) sheet.getRange(rowNumber, 14).setValue(price);
+  sheet.getRange(rowNumber, 10).setValue('Notified');  // J: Status
+  sheet.getRange(rowNumber, 11).setValue(new Date());  // K: Notified At
+  if (retailerName) sheet.getRange(rowNumber, 12).setValue(retailerName); // L: Retailer Found
+  if (price) sheet.getRange(rowNumber, 13).setValue(price); // M: Price When Notified
 
   Logger.log('✓ Notification sent to ' + email + ' for row ' + rowNumber);
 }
@@ -394,10 +394,10 @@ function getAlertStatistics() {
     const brand      = data[i][2];
     const color      = data[i][4];
     const styleCode  = data[i][5];
-    const productUrl = data[i][6];
-    const size       = data[i][7];
-    const width      = data[i][8] || 'Regular';
-    const status     = String(data[i][10]).toLowerCase();
+    const size       = data[i][6];
+    const width      = data[i][7] || 'Regular';
+    const status     = String(data[i][9]).toLowerCase();
+    const productUrl = data[i][14];
 
     if (gender) stats.byGender[gender] = (stats.byGender[gender] || 0) + 1;
     if (brand)  stats.byBrand[brand]   = (stats.byBrand[brand]   || 0) + 1;
@@ -480,9 +480,9 @@ function processStockReport(reportRow) {
   const model          = row[4] || 'Any';
   const sizesAvailable = String(row[5]);
   const currentPrice   = row[6];
-  const productUrl     = row[12];
   const reporterName   = row[10];
-  const status         = row[13];
+  const status         = row[12];
+  const productUrl     = row[13];
 
   if (status === 'Notified') {
     Logger.log('Row ' + reportRow + ' already processed.');
