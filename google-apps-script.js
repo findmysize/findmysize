@@ -132,6 +132,13 @@ function saveStockReport(ss, data) {
  * @param {string} reporterName - Optional: name of community member who found it
  */
 function notifyUsersForShoe(gender, brand, model, color, size, width, retailerLink, price, retailerName, reporterName) {
+  // Guard: make sure required parameters were provided
+  if (!gender || !brand || !size) {
+    Logger.log('ERROR: Missing required parameters. Please provide gender, brand, and size.');
+    Logger.log('Example: notifyUsersForShoe("male", "Nike", "Pegasus 41", "Any", "10", "Regular", "https://...", 1999, "Superbalist")');
+    return;
+  }
+
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName('Alert Requests');
   if (!sheet) { Logger.log('ERROR: Sheet "Alert Requests" not found.'); return; }
@@ -140,6 +147,8 @@ function notifyUsersForShoe(gender, brand, model, color, size, width, retailerLi
   const genderLabels = { 'male': "Men's", 'female': "Women's", 'unisex': 'Unisex' };
   const genderLabel = genderLabels[gender] || gender;
   width = width || 'Regular';
+  model = model || 'Any';
+  color = color || 'Any';
 
   Logger.log('--- Starting notification run ---');
   Logger.log('Looking for: ' + gender + ', ' + brand + ', ' + model + ', size ' + size + ', ' + width);
@@ -163,12 +172,12 @@ function notifyUsersForShoe(gender, brand, model, color, size, width, retailerLi
     if (rowStatus !== 'pending') { alreadyNotified++; continue; }
 
     // Check for match
-    const genderMatch = rowGender === gender.toLowerCase();
-    const brandMatch  = rowBrand.toLowerCase() === brand.toLowerCase();
+    const genderMatch = rowGender === String(gender).toLowerCase();
+    const brandMatch  = rowBrand.toLowerCase() === String(brand).toLowerCase();
     const sizeMatch   = rowSize === String(size).trim();
     const widthMatch  = rowWidth === width;
-    const modelMatch  = model === 'Any' || rowModel === 'Any' || rowModel.toLowerCase() === model.toLowerCase();
-    const colorMatch  = color === 'Any' || rowColor === 'Any' || rowColor.toLowerCase() === color.toLowerCase();
+    const modelMatch  = model === 'Any' || rowModel === 'Any' || rowModel.toLowerCase() === String(model).toLowerCase();
+    const colorMatch  = color === 'Any' || rowColor === 'Any' || rowColor.toLowerCase() === String(color).toLowerCase();
 
     if (genderMatch && brandMatch && sizeMatch && widthMatch && modelMatch && colorMatch) {
       matchCount++;
