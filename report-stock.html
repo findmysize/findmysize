@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Stock - FindMySize</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 50px 40px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .tagline {
+            text-align: center;
+            font-size: 1.2em;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        .hero-box {
+            background: #f0f7ff;
+            border-left: 4px solid #4caf50;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+
+        .hero-box h2 {
+            color: #4caf50;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #4caf50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(76, 175, 80, 0.4);
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .success-message {
+            display: none;
+            background: #4caf50;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        small {
+            display: block;
+            color: #777;
+            font-size: 0.85em;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 25px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Report Stock</h1>
+        <p class="tagline">Help others find their size - Share what you found!</p>
+
+        <div class="hero-box">
+            <h2>How It Works</h2>
+            <p>Found a shoe in stock while browsing? Share the link! We'll notify everyone looking for that shoe and give you credit for helping the community.</p>
+        </div>
+
+        <form id="reportForm">
+            <div class="form-group">
+                <label for="productUrl">Product Link *</label>
+                <input type="url" id="productUrl" name="productUrl" placeholder="https://superbalist.com/nike-pegasus-41/..." required>
+                <small>Paste the full URL where you found the shoe</small>
+            </div>
+
+            <div class="form-group">
+                <label for="retailer">Retailer *</label>
+                <select id="retailer" name="retailer" required>
+                    <option value="">Select retailer</option>
+                    <option value="Superbalist">Superbalist</option>
+                    <option value="Zando">Zando</option>
+                    <option value="Sportscene">Sportscene</option>
+                    <option value="Totalsports">Totalsports</option>
+                    <option value="The Athletes Foot">The Athletes Foot</option>
+                    <option value="Bash">Bash</option>
+                    <option value="Cape Union Mart">Cape Union Mart</option>
+                    <option value="Edgars">Edgars</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="brand">Brand *</label>
+                <input type="text" id="brand" name="brand" placeholder="e.g., Nike, Adidas" required>
+            </div>
+
+            <div class="form-group">
+                <label for="model">Model</label>
+                <input type="text" id="model" name="model" placeholder="e.g., Pegasus 41, Ultraboost">
+                <small>Optional but helpful</small>
+            </div>
+
+            <div class="form-group">
+                <label for="sizesAvailable">Sizes Available *</label>
+                <input type="text" id="sizesAvailable" name="sizesAvailable" placeholder="e.g., 8, 9, 10, 10.5, 11" required>
+                <small>List all sizes you saw in stock</small>
+            </div>
+
+            <div class="form-group">
+                <label for="price">Price (Rands)</label>
+                <input type="number" id="price" name="price" placeholder="e.g., 1999">
+            </div>
+
+            <div class="form-group">
+                <label for="reporterEmail">Your Email (Optional)</label>
+                <input type="email" id="reporterEmail" name="reporterEmail" placeholder="your@email.com">
+                <small>Get credit and thanks when we notify users!</small>
+            </div>
+
+            <div class="form-group">
+                <label for="notes">Additional Notes</label>
+                <textarea id="notes" name="notes" rows="3" placeholder="Any other helpful info? (e.g., 'Sale ends Sunday', 'Limited stock')"></textarea>
+            </div>
+
+            <button type="submit">Report This Stock</button>
+        </form>
+
+        <div class="success-message" id="successMessage">
+            ✓ Thank you! We'll verify and notify users who want this shoe. You're helping the community!
+        </div>
+
+        <a href="index.html" class="back-link">← Back to Home</a>
+    </div>
+
+    <script>
+        document.getElementById('reportForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = {
+                type: 'stock_report',
+                productUrl: document.getElementById('productUrl').value,
+                retailer: document.getElementById('retailer').value,
+                brand: document.getElementById('brand').value,
+                model: document.getElementById('model').value || 'Not specified',
+                sizesAvailable: document.getElementById('sizesAvailable').value,
+                price: document.getElementById('price').value || 'Not specified',
+                reporterEmail: document.getElementById('reporterEmail').value || 'Anonymous',
+                notes: document.getElementById('notes').value || 'None',
+                timestamp: new Date().toISOString()
+            };
+
+            console.log('Stock Report:', formData);
+
+            // Send to Google Sheets
+            try {
+                const response = await fetch('https://script.google.com/macros/s/AKfycbxlE4w5WyF9DPkgXhcD6C4YSgGCiw1h2CRjtMy3PlCnczBeOvv9O0MDJyCo4kIy9MQd/exec', {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                console.log('Report sent to Google Sheets');
+            } catch (error) {
+                console.error('Error:', error);
+            }
+
+            // Show success message
+            document.getElementById('successMessage').classList.add('show');
+            document.getElementById('reportForm').reset();
+
+            // Hide success message after 5 seconds
+            setTimeout(() => {
+                document.getElementById('successMessage').classList.remove('show');
+            }, 5000);
+        });
+    </script>
+</body>
+</html>
