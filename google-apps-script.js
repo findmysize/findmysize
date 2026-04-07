@@ -496,10 +496,9 @@ function processAllNewStockReports() {
   // Loop through all stock report rows (skip header)
   for (let i = 1; i < data.length; i++) {
     const row    = data[i];
-    const status = String(row[12]).trim();
 
     // Only process rows with status "New" - skip already processed ones
-    const status = String(row[14]).trim();  // O: Status (index 14)
+    const status = String(row[14]).trim();  // O: Status
     if (status !== 'New') {
       skipped++;
       continue;
