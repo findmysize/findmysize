@@ -20,7 +20,7 @@
 // Timestamp | Gender | Brand | Model | Color | Style Code | Size | Width | Email | Status | Notified At | Retailer Found | Price When Notified | Notes | Product URL
 //
 // STOCK REPORTS tab - Row 1 headers (copy exactly):
-// Timestamp | Report Type | Retailer | Brand | Model | Sizes Available | Current Price | Original Price | Sale End Date | Notes | Reporter Name | Reporter Email | Gender | Width | Status | Product URL
+// Timestamp | Report Type | Gender | Brand | Model | Width | Sizes Available | Retailer | Current Price | Original Price | Sale End Date | Notes | Reporter Name | Reporter Email | Status | Product URL
 // ============================================================
 
 
@@ -91,22 +91,22 @@ function saveStockReport(ss, data) {
   if (!sheet) throw new Error('Sheet "Stock Reports" not found. Please create this tab.');
 
   sheet.appendRow([
-    new Date(),                    // A: Timestamp (report received)
-    data.reportType || 'stock',    // B: Report Type (stock or special)
-    data.retailer || '',           // C: Retailer
-    data.brand || '',              // D: Brand
-    data.model || '',              // E: Model
-    data.sizesAvailable || '',     // F: Sizes Available
-    data.currentPrice || '',       // G: Current / Sale Price
-    data.originalPrice || '',      // H: Original Price (specials only)
-    data.saleEndDate || '',        // I: Sale End Date (specials only)
-    data.notes || '',              // J: Notes
-    data.reporterName || 'Anonymous', // K: Reporter Name
-    data.reporterEmail || '',      // L: Reporter Email
-    data.gender || 'Any',          // M: Gender
-    data.width || 'Any',           // N: Width
-    'New',                         // O: Status
-    data.productUrl || ''          // P: Product URL
+    new Date(),                       // A: Timestamp
+    data.reportType || 'stock',       // B: Report Type
+    data.gender || 'Any',             // C: Gender
+    data.brand || '',                 // D: Brand
+    data.model || '',                 // E: Model
+    data.width || 'Any',              // F: Width
+    data.sizesAvailable || '',        // G: Sizes Available
+    data.retailer || '',              // H: Retailer
+    data.currentPrice || '',          // I: Current / Sale Price
+    data.originalPrice || '',         // J: Original Price (specials only)
+    data.saleEndDate || '',           // K: Sale End Date (specials only)
+    data.notes || '',                 // L: Notes
+    data.reporterName || 'Anonymous', // M: Reporter Name
+    data.reporterEmail || '',         // N: Reporter Email
+    'New',                            // O: Status
+    data.productUrl || ''             // P: Product URL
   ]);
 
   Logger.log('Stock report saved: ' + data.reportType + ' - ' + data.brand + ' at ' + data.retailer);
@@ -448,12 +448,12 @@ function getStockReportStats() {
   };
 
   for (let i = 1; i < data.length; i++) {
-    const reportType   = data[i][1];
-    const retailer     = data[i][2];
-    const brand        = data[i][3];
-    const reporterName = data[i][10];
-    const reporterEmail= data[i][11];
-    const status       = data[i][13];
+    const reportType    = data[i][1];   // B
+    const brand         = data[i][3];   // D
+    const retailer      = data[i][7];   // H
+    const reporterName  = data[i][12];  // M
+    const reporterEmail = data[i][13];  // N
+    const status        = data[i][14];  // O
 
     if (reportType === 'stock')   stats.stockReports++;
     if (reportType === 'special') stats.specialReports++;
@@ -499,21 +499,21 @@ function processAllNewStockReports() {
     const status = String(row[12]).trim();
 
     // Only process rows with status "New" - skip already processed ones
-    const status = String(row[14]).trim();  // O: Status
+    const status = String(row[14]).trim();  // O: Status (index 14)
     if (status !== 'New') {
       skipped++;
       continue;
     }
 
-    const retailer       = String(row[2]).trim();
-    const brand          = String(row[3]).trim();
-    const model          = String(row[4]).trim() || 'Any';
-    const sizesAvailable = String(row[5]).trim();
-    const currentPrice   = row[6];
-    const reporterName   = String(row[10]).trim();
-    const reportGender   = String(row[12]).trim() || 'Any';  // M: Gender
-    const reportWidth    = String(row[13]).trim() || 'Any';  // N: Width
-    const productUrl     = String(row[15]).trim();           // P: Product URL
+    const reportGender   = String(row[2]).trim() || 'Any';  // C: Gender
+    const brand          = String(row[3]).trim();           // D: Brand
+    const model          = String(row[4]).trim() || 'Any'; // E: Model
+    const reportWidth    = String(row[5]).trim() || 'Any'; // F: Width
+    const sizesAvailable = String(row[6]).trim();           // G: Sizes Available
+    const retailer       = String(row[7]).trim();           // H: Retailer
+    const currentPrice   = row[8];                          // I: Current Price
+    const reporterName   = String(row[12]).trim();          // M: Reporter Name
+    const productUrl     = String(row[15]).trim();          // P: Product URL
     const rowNumber      = i + 1;
 
     if (!brand || !sizesAvailable) {
