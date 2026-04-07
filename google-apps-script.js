@@ -20,7 +20,7 @@
 // Timestamp | Gender | Brand | Model | Color | Style Code | Size | Width | Email | Status | Notified At | Retailer Found | Price When Notified | Notes | Product URL
 //
 // STOCK REPORTS tab - Row 1 headers (copy exactly):
-// Timestamp | Report Type | Retailer | Brand | Model | Sizes Available | Current Price | Original Price | Sale End Date | Notes | Reporter Name | Reporter Email | Status | Product URL
+// Timestamp | Report Type | Retailer | Brand | Model | Sizes Available | Current Price | Original Price | Sale End Date | Notes | Reporter Name | Reporter Email | Gender | Width | Status | Product URL
 // ============================================================
 
 
@@ -103,8 +103,10 @@ function saveStockReport(ss, data) {
     data.notes || '',              // J: Notes
     data.reporterName || 'Anonymous', // K: Reporter Name
     data.reporterEmail || '',      // L: Reporter Email
-    'New',                         // M: Status (New/Verified/Notified/Expired)
-    data.productUrl || ''          // N: Product URL (moved to end)
+    data.gender || 'Any',          // M: Gender
+    data.width || 'Any',           // N: Width
+    'New',                         // O: Status
+    data.productUrl || ''          // P: Product URL
   ]);
 
   Logger.log('Stock report saved: ' + data.reportType + ' - ' + data.brand + ' at ' + data.retailer);
@@ -497,6 +499,7 @@ function processAllNewStockReports() {
     const status = String(row[12]).trim();
 
     // Only process rows with status "New" - skip already processed ones
+    const status = String(row[14]).trim();  // O: Status
     if (status !== 'New') {
       skipped++;
       continue;
@@ -508,7 +511,9 @@ function processAllNewStockReports() {
     const sizesAvailable = String(row[5]).trim();
     const currentPrice   = row[6];
     const reporterName   = String(row[10]).trim();
-    const productUrl     = String(row[13]).trim();
+    const reportGender   = String(row[12]).trim() || 'Any';  // M: Gender
+    const reportWidth    = String(row[13]).trim() || 'Any';  // N: Width
+    const productUrl     = String(row[15]).trim();           // P: Product URL
     const rowNumber      = i + 1;
 
     if (!brand || !sizesAvailable) {
@@ -526,10 +531,21 @@ function processAllNewStockReports() {
 
     let rowMatchCount = 0;
 
-    // Check each size against all genders and both widths
+    // Determine which genders and widths to check
+    const gendersToCheck = reportGender === 'Any'
+      ? ['male', 'female', 'unisex']
+      : [reportGender];
+
+    const widthsToCheck = reportWidth === 'Any'
+      ? ['Regular', 'Wide', 'Extra Wide', 'Narrow']
+      : [reportWidth];
+
+    Logger.log('Genders: ' + gendersToCheck.join(', ') + ' | Widths: ' + widthsToCheck.join(', '));
+
+    // Check each size against relevant genders and widths
     sizes.forEach(function(size) {
-      ['male', 'female', 'unisex'].forEach(function(gender) {
-        ['Regular', 'Wide', 'Extra Wide', 'Narrow'].forEach(function(width) {
+      gendersToCheck.forEach(function(gender) {
+        widthsToCheck.forEach(function(width) {
           rowMatchCount += notifyUsersForShoe(
             gender,
             brand,
@@ -546,9 +562,9 @@ function processAllNewStockReports() {
       });
     });
 
-    // Mark row as Notified and highlight green
-    reportsSheet.getRange(rowNumber, 13).setValue('Notified');
-    reportsSheet.getRange(rowNumber, 13).setBackground('#c8e6c9');
+    // Mark row as Notified and highlight green (column O = 15)
+    reportsSheet.getRange(rowNumber, 15).setValue('Notified');
+    reportsSheet.getRange(rowNumber, 15).setBackground('#c8e6c9');
 
     Logger.log('Row ' + rowNumber + ': ' + rowMatchCount + ' users notified');
     processed++;
