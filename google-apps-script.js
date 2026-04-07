@@ -214,6 +214,7 @@ function notifyUsersForShoe(gender, brand, model, color, size, width, retailerLi
   Logger.log('Matched & notified: ' + matchCount);
   Logger.log('Skipped (already notified): ' + alreadyNotified);
   Logger.log('Total rows checked: ' + (data.length - 1));
+  return matchCount;
 }
 
 
@@ -467,69 +468,94 @@ function getStockReportStats() {
 
 
 // ============================================================
-// SECTION 7: PROCESS A STOCK REPORT
-// Run this after verifying a community stock report
-// It will find matching alert requests and notify them
+// SECTION 7: PROCESS STOCK REPORTS
 // ============================================================
 
 /**
- * Process a verified stock report and notify matching users
- * @param {number} reportRow - Row number in Stock Reports tab
+ * ⭐ MAIN FUNCTION - Run this once a day (or whenever you want)
+ * Automatically checks ALL new stock reports and notifies
+ * matching users in Alert Requests. No manual steps needed.
  */
-function processStockReport(reportRow) {
+function processAllNewStockReports() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const reportsSheet = ss.getSheetByName('Stock Reports');
   if (!reportsSheet) { Logger.log('ERROR: Sheet "Stock Reports" not found.'); return; }
 
-  const row = reportsSheet.getRange(reportRow, 1, 1, 14).getValues()[0];
+  const data = reportsSheet.getDataRange().getValues();
+  let processed = 0;
+  let skipped = 0;
 
-  const reportType     = row[1];
-  const retailer       = row[2];
-  const brand          = row[3];
-  const model          = row[4] || 'Any';
-  const sizesAvailable = String(row[5]);
-  const currentPrice   = row[6];
-  const reporterName   = row[10];
-  const status         = row[12];
-  const productUrl     = row[13];
+  Logger.log('========================================');
+  Logger.log('Processing all new stock reports...');
+  Logger.log('Total rows found: ' + (data.length - 1));
+  Logger.log('========================================');
 
-  if (status === 'Notified') {
-    Logger.log('Row ' + reportRow + ' already processed.');
-    return;
+  // Loop through all stock report rows (skip header)
+  for (let i = 1; i < data.length; i++) {
+    const row    = data[i];
+    const status = String(row[12]).trim();
+
+    // Only process rows with status "New" - skip already processed ones
+    if (status !== 'New') {
+      skipped++;
+      continue;
+    }
+
+    const retailer       = String(row[2]).trim();
+    const brand          = String(row[3]).trim();
+    const model          = String(row[4]).trim() || 'Any';
+    const sizesAvailable = String(row[5]).trim();
+    const currentPrice   = row[6];
+    const reporterName   = String(row[10]).trim();
+    const productUrl     = String(row[13]).trim();
+    const rowNumber      = i + 1;
+
+    if (!brand || !sizesAvailable) {
+      Logger.log('Row ' + rowNumber + ': Skipping - missing brand or sizes');
+      skipped++;
+      continue;
+    }
+
+    Logger.log('----------------------------------------');
+    Logger.log('Processing row ' + rowNumber + ': ' + brand + ' ' + model + ' at ' + retailer);
+
+    // Parse sizes - handles "8, 9, 10, 10.5" or "8,9,10,10.5"
+    const sizes = sizesAvailable.split(',').map(s => s.trim()).filter(s => s !== '');
+    Logger.log('Sizes: ' + sizes.join(', '));
+
+    let rowMatchCount = 0;
+
+    // Check each size against all genders and both widths
+    sizes.forEach(function(size) {
+      ['male', 'female', 'unisex'].forEach(function(gender) {
+        ['Regular', 'Wide', 'Extra Wide', 'Narrow'].forEach(function(width) {
+          rowMatchCount += notifyUsersForShoe(
+            gender,
+            brand,
+            model,
+            'Any',
+            size,
+            width,
+            productUrl,
+            currentPrice,
+            retailer,
+            reporterName
+          );
+        });
+      });
+    });
+
+    // Mark row as Notified and highlight green
+    reportsSheet.getRange(rowNumber, 13).setValue('Notified');
+    reportsSheet.getRange(rowNumber, 13).setBackground('#c8e6c9');
+
+    Logger.log('Row ' + rowNumber + ': ' + rowMatchCount + ' users notified');
+    processed++;
   }
 
-  // Parse sizes into array
-  const sizes = sizesAvailable.split(',').map(s => s.trim()).filter(s => s !== '');
-
-  Logger.log('Processing stock report: ' + brand + ' at ' + retailer);
-  Logger.log('Sizes to notify: ' + sizes.join(', '));
-
-  let totalNotified = 0;
-
-  // Notify for each size
-  sizes.forEach(function(size) {
-    // Try all genders since one report can match multiple
-    ['male', 'female', 'unisex'].forEach(function(gender) {
-      notifyUsersForShoe(
-        gender,
-        brand,
-        model,
-        'Any',           // Match any color
-        size,
-        'Regular',       // Default to regular - will add wide support later
-        productUrl,
-        currentPrice,
-        retailer,
-        reporterName
-      );
-    });
-  });
-
-  // Mark report as Notified
-  reportsSheet.getRange(reportRow, 14).setValue('Notified');
-  reportsSheet.getRange(reportRow, 14).setBackground('#c8e6c9'); // Light green
-
-  Logger.log('✓ Stock report processed. Row ' + reportRow + ' marked as Notified.');
+  Logger.log('========================================');
+  Logger.log('Done! Processed: ' + processed + ' | Skipped: ' + skipped);
+  Logger.log('========================================');
 }
 
 
@@ -582,12 +608,15 @@ function testStockReport() {
 //
 // DAILY WORKFLOW:
 //
-// 1. Check "Stock Reports" tab for new rows with Status = "New"
-// 2. Verify the link is real and in stock
-// 3. Run: processStockReport(ROW_NUMBER)
-//    e.g., processStockReport(3)  ← processes row 3
+// 1. Check "Stock Reports" tab for new rows (Status = "New")
+// 2. Verify the links are real and in stock
+// 3. Run: processAllNewStockReports()
+//    → Automatically matches ALL new reports to ALL pending requests
+//    → Notifies matching users by email
+//    → Updates status to "Notified" (highlighted green)
+//    → Done!
 //
-// OR manually run:
+// MANUAL (if needed):
 //    notifyUsersForShoe('male', 'Nike', 'Pegasus 41', 'Any', '10', 'Regular', 'https://...', 1999, 'Superbalist')
 //
 // CHECK DEMAND:
