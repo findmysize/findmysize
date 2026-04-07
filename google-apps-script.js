@@ -168,8 +168,8 @@ function notifyUsersForShoe(gender, brand, model, color, size, width, retailerLi
     const rowEmail     = String(row[8]).trim();
     const rowStatus    = String(row[9]).toLowerCase().trim();
 
-    // Skip already notified rows
-    if (rowStatus !== 'pending') { alreadyNotified++; continue; }
+    // Process pending AND re-notify rows
+    if (rowStatus !== 'pending' && rowStatus !== 're-notify') { alreadyNotified++; continue; }
 
     // Check for match
     const genderMatch = rowGender === String(gender).toLowerCase();
@@ -200,8 +200,9 @@ function notifyUsersForShoe(gender, brand, model, color, size, width, retailerLi
         noReply: true
       });
 
-      // Update row status
-      sheet.getRange(i + 1, 10).setValue('Notified');  // J: Status
+      // Update row status - track if this was a re-notification
+      const newStatus = rowStatus === 're-notify' ? 'Re-notified' : 'Notified';
+      sheet.getRange(i + 1, 10).setValue(newStatus);   // J: Status
       sheet.getRange(i + 1, 11).setValue(new Date());  // K: Notified At
       sheet.getRange(i + 1, 12).setValue(retailerName || ''); // L: Retailer Found
       sheet.getRange(i + 1, 13).setValue(price || ''); // M: Price When Notified
@@ -560,7 +561,189 @@ function processAllNewStockReports() {
 
 
 // ============================================================
-// SECTION 8: TEST FUNCTIONS
+// SECTION 8: RE-NOTIFY FUNCTIONS
+// Use when a sale didn't go through or user missed the email
+// ============================================================
+
+/**
+ * ⭐ Re-notify ALL users marked as "Re-notify" in the sheet
+ * Step 1: In Alert Requests sheet, change Status to "Re-notify" for rows you want to resend
+ * Step 2: Run this function
+ */
+function processRenotifications() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName('Alert Requests');
+  if (!sheet) { Logger.log('ERROR: Sheet "Alert Requests" not found.'); return; }
+
+  const data = sheet.getDataRange().getValues();
+  let count = 0;
+
+  Logger.log('========================================');
+  Logger.log('Processing re-notifications...');
+  Logger.log('========================================');
+
+  for (let i = 1; i < data.length; i++) {
+    const row    = data[i];
+    const status = String(row[9]).toLowerCase().trim();
+
+    if (status !== 're-notify') continue;
+
+    const gender      = String(row[1]).trim();
+    const brand       = String(row[2]).trim();
+    const model       = String(row[3]).trim() || 'Any';
+    const size        = String(row[6]).trim();
+    const width       = String(row[7] || 'Regular').trim();
+    const email       = String(row[8]).trim();
+    const retailer    = String(row[11]).trim() || 'Previously found retailer';
+    const price       = row[12];
+    const productUrl  = String(row[14]).trim();
+
+    const genderLabels = { 'male': "Men's", 'female': "Women's", 'unisex': 'Unisex' };
+    const genderLabel  = genderLabels[gender] || gender;
+    let sizeDesc = genderLabel + ' size ' + size;
+    if (width !== 'Regular') sizeDesc += ' (' + width + ')';
+
+    const subject  = '👟 FindMySize: Reminder — Your ' + brand + ' ' + model + ' is Still Available!';
+    const htmlBody = buildRenotifyEmail({ brand, model, sizeDesc, price, retailerLink: productUrl, retailerName: retailer });
+
+    MailApp.sendEmail({ to: email, subject: subject, htmlBody: htmlBody, noReply: true });
+
+    // Update status and timestamp
+    sheet.getRange(i + 1, 10).setValue('Re-notified');
+    sheet.getRange(i + 1, 11).setValue(new Date());
+    sheet.getRange(i + 1, 10).setBackground('#fff9c4'); // Light yellow to distinguish from first notify
+
+    Logger.log('✓ Re-notified: ' + email + ' for ' + brand + ' ' + model + ' size ' + size);
+    count++;
+  }
+
+  Logger.log('========================================');
+  Logger.log('Done! ' + count + ' re-notifications sent.');
+  Logger.log('========================================');
+}
+
+
+/**
+ * Re-notify a single user by row number
+ * @param {number} rowNumber - Row number in Alert Requests tab
+ */
+function reNotifyRow(rowNumber) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName('Alert Requests');
+  if (!sheet) { Logger.log('ERROR: Sheet "Alert Requests" not found.'); return; }
+
+  const row = sheet.getRange(rowNumber, 1, 1, 15).getValues()[0];
+
+  const gender      = String(row[1]).trim();
+  const brand       = String(row[2]).trim();
+  const model       = String(row[3]).trim() || 'Any';
+  const size        = String(row[6]).trim();
+  const width       = String(row[7] || 'Regular').trim();
+  const email       = String(row[8]).trim();
+  const retailer    = String(row[11]).trim() || 'Previously found retailer';
+  const price       = row[12];
+  const productUrl  = String(row[14]).trim();
+
+  const genderLabels = { 'male': "Men's", 'female': "Women's", 'unisex': 'Unisex' };
+  const genderLabel  = genderLabels[gender] || gender;
+  let sizeDesc = genderLabel + ' size ' + size;
+  if (width !== 'Regular') sizeDesc += ' (' + width + ')';
+
+  const subject  = '👟 FindMySize: Reminder — Your ' + brand + ' ' + model + ' is Still Available!';
+  const htmlBody = buildRenotifyEmail({ brand, model, sizeDesc, price, retailerLink: productUrl, retailerName: retailer });
+
+  MailApp.sendEmail({ to: email, subject: subject, htmlBody: htmlBody, noReply: true });
+
+  sheet.getRange(rowNumber, 10).setValue('Re-notified');
+  sheet.getRange(rowNumber, 11).setValue(new Date());
+  sheet.getRange(rowNumber, 10).setBackground('#fff9c4');
+
+  Logger.log('✓ Re-notification sent to ' + email + ' (row ' + rowNumber + ')');
+}
+
+
+/**
+ * Builds the re-notification email (slightly different tone - reminder)
+ */
+function buildRenotifyEmail(details) {
+  const { brand, model, sizeDesc, price, retailerLink, retailerName } = details;
+  const modelText = (model && model !== 'Any' && model !== 'Not specified') ? model : '';
+  const priceText = price ? 'R' + Number(price).toLocaleString('en-ZA') : '';
+
+  return `
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0; padding:0; background:#f5f5f5; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5; padding:30px 0;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px; background:white; border-radius:16px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.1);">
+
+        <!-- Header -->
+        <tr>
+          <td style="background:linear-gradient(135deg,#ff9800,#f57c00); padding:35px 40px; text-align:center;">
+            <h1 style="margin:0; color:white; font-size:28px; font-weight:700;">FindMySize</h1>
+            <p style="margin:8px 0 0; color:rgba(255,255,255,0.95); font-size:15px;">⏰ Friendly Reminder — Still Available!</p>
+          </td>
+        </tr>
+
+        <!-- Body -->
+        <tr>
+          <td style="padding:35px 40px;">
+            <p style="margin:0 0 20px; color:#333; font-size:16px; line-height:1.6;">
+              Just a reminder — the shoe you've been waiting for is <strong>still available</strong>! Don't miss out this time. 🏃
+            </p>
+
+            <!-- Shoe details -->
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:#fff8f0; border-radius:10px; border-left:4px solid #ff9800; margin-bottom:25px;">
+              <tr><td style="padding:20px 25px;">
+                <p style="margin:0 0 12px; color:#f57c00; font-weight:700; font-size:16px;">Shoe Details</p>
+                <table width="100%" cellpadding="4" cellspacing="0">
+                  <tr><td style="color:#888; font-size:14px; width:110px;">Brand</td><td style="color:#333; font-size:14px; font-weight:600;">${brand}</td></tr>
+                  ${modelText ? `<tr><td style="color:#888; font-size:14px;">Model</td><td style="color:#333; font-size:14px; font-weight:600;">${modelText}</td></tr>` : ''}
+                  <tr><td style="color:#888; font-size:14px;">Size</td><td style="color:#333; font-size:14px; font-weight:600;">${sizeDesc}</td></tr>
+                  ${priceText ? `<tr><td style="color:#888; font-size:14px;">Price</td><td style="color:#333; font-size:14px; font-weight:600;">${priceText}</td></tr>` : ''}
+                  <tr><td style="color:#888; font-size:14px;">Retailer</td><td style="color:#333; font-size:14px; font-weight:600;">${retailerName}</td></tr>
+                </table>
+              </td></tr>
+            </table>
+
+            ${retailerLink && retailerLink !== 'Not provided' ? `
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:25px;">
+              <tr><td align="center">
+                <a href="${retailerLink}" style="display:inline-block; padding:16px 40px; background:linear-gradient(135deg,#ff9800,#f57c00); color:white; text-decoration:none; border-radius:10px; font-weight:700; font-size:16px;">
+                  Buy Now →
+                </a>
+              </td></tr>
+            </table>` : ''}
+
+            <p style="margin:0; color:#888; font-size:13px; text-align:center; line-height:1.6;">
+              ⚡ Popular sizes sell out fast — we recommend buying soon!<br>
+              This is your last reminder for this shoe.
+            </p>
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td style="background:#f8f9fa; padding:20px 40px; border-top:1px solid #e0e0e0;">
+            <p style="margin:0; color:#aaa; font-size:12px; text-align:center; line-height:1.8;">
+              You received this because you signed up for alerts at <strong>FindMySize</strong>.<br>
+              To unsubscribe, reply with <strong>UNSUBSCRIBE</strong>.
+            </p>
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+}
+
+
+// ============================================================
+// SECTION 9: TEST FUNCTIONS
 // Use these to test without real data
 // ============================================================
 
