@@ -17,7 +17,7 @@
 //
 // ------------------------------------------------------------
 // ALERT REQUESTS tab - Row 1 headers (copy exactly):
-// Timestamp | Gender | Brand | Model | Color | Style Code | Size | Width | Email | Status | Notified At | Retailer Found | Price When Notified | Notes | Product URL
+// Timestamp | Gender | Brand | Model | Color | Style Code | Size | Width | Email | Status | Notified At | Retailer Found | Price When Notified | Notes | Last Update Sent | Product URL
 //
 // STOCK REPORTS tab - Row 1 headers (copy exactly):
 // Timestamp | Report Type | Gender | Brand | Model | Width | Sizes Available | Retailer | Current Price | Original Price | Sale End Date | Notes | Reporter Name | Reporter Email | Status | Product URL
@@ -79,7 +79,8 @@ function saveAlertRequest(ss, data) {
     '',                      // L: Retailer Found
     '',                      // M: Price When Notified
     '',                      // N: Notes
-    data.productUrl || ''    // O: Product URL (moved to end)
+    '',                      // O: Last Update Sent
+    data.productUrl || ''    // P: Product URL
   ]);
 
   Logger.log('Alert request saved: ' + data.brand + ' ' + data.size + ' for ' + data.email);
@@ -411,7 +412,7 @@ function getAlertStatistics() {
     const size       = data[i][6];
     const width      = data[i][7] || 'Regular';
     const status     = String(data[i][9]).toLowerCase();
-    const productUrl = data[i][14];
+    const productUrl = data[i][15]; // P: Product URL
 
     if (gender) stats.byGender[gender] = (stats.byGender[gender] || 0) + 1;
     if (brand)  stats.byBrand[brand]   = (stats.byBrand[brand]   || 0) + 1;
@@ -614,7 +615,7 @@ function processRenotifications() {
     const email       = String(row[8]).trim();
     const retailer    = String(row[11]).trim() || 'Previously found retailer';
     const price       = row[12];
-    const productUrl  = String(row[14]).trim();
+    const productUrl  = String(row[15]).trim(); // P: Product URL
 
     const genderLabels = { 'male': "Men's", 'female': "Women's", 'unisex': 'Unisex' };
     const genderLabel  = genderLabels[gender] || gender;
@@ -660,7 +661,7 @@ function reNotifyRow(rowNumber) {
   const email       = String(row[8]).trim();
   const retailer    = String(row[11]).trim() || 'Previously found retailer';
   const price       = row[12];
-  const productUrl  = String(row[14]).trim();
+  const productUrl  = String(row[15]).trim(); // P: Product URL
 
   const genderLabels = { 'male': "Men's", 'female': "Women's", 'unisex': 'Unisex' };
   const genderLabel  = genderLabels[gender] || gender;
@@ -761,7 +762,278 @@ function buildRenotifyEmail(details) {
 
 
 // ============================================================
-// SECTION 9: TEST FUNCTIONS
+// SECTION 9: STILL LOOKING UPDATES
+// Keeps users informed when we haven't found their shoe yet
+// Run this daily via a time-based trigger
+// ============================================================
+
+/**
+ * ⭐ Run daily via trigger
+ * Sends "still looking" emails to Pending users at 7, 30, and 60 days
+ */
+function sendStillLookingUpdates() {
+  const ss    = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName('Alert Requests');
+  if (!sheet) { Logger.log('ERROR: Alert Requests not found'); return; }
+
+  const data = sheet.getDataRange().getValues();
+  const now  = new Date();
+
+  let day7Count  = 0;
+  let day30Count = 0;
+  let day60Count = 0;
+  let skipped    = 0;
+
+  Logger.log('========================================');
+  Logger.log('Running Still Looking Updates...');
+  Logger.log('========================================');
+
+  for (let i = 1; i < data.length; i++) {
+    const row             = data[i];
+    const timestamp       = new Date(row[0]);
+    const brand           = String(row[2]).trim();
+    const model           = String(row[3]).trim();
+    const size            = String(row[6]).trim();
+    const width           = String(row[7] || 'Regular').trim();
+    const email           = String(row[8]).trim();
+    const status          = String(row[9]).toLowerCase().trim();
+    const lastUpdateSent  = row[14] ? new Date(row[14]) : null; // O
+
+    // Only send to Pending rows
+    if (status !== 'pending') { skipped++; continue; }
+    if (!email || !brand)     { skipped++; continue; }
+
+    const daysSinceSubmit = Math.floor((now - timestamp) / (1000 * 60 * 60 * 24));
+    const daysSinceUpdate = lastUpdateSent
+      ? Math.floor((now - lastUpdateSent) / (1000 * 60 * 60 * 24))
+      : 999;
+
+    const genderLabels = { 'male': "Men's", 'female': "Women's", 'unisex': 'Unisex' };
+    const gender       = String(row[1]).trim();
+    const genderLabel  = genderLabels[gender] || gender;
+    let sizeDesc       = genderLabel + ' size ' + size;
+    if (width !== 'Regular') sizeDesc += ' (' + width + ')';
+
+    const shoeDesc = brand + (model && model !== 'Any' ? ' ' + model : '');
+
+    let emailType = null;
+
+    // Day 7 check — first update, never sent before
+    if (daysSinceSubmit >= 7 && !lastUpdateSent) {
+      emailType = 'day7';
+
+    // Day 30 check — at least 23 days since last update
+    } else if (daysSinceSubmit >= 30 && daysSinceUpdate >= 23) {
+      emailType = 'day30';
+
+    // Day 60 check — at least 28 days since last update
+    } else if (daysSinceSubmit >= 60 && daysSinceUpdate >= 28) {
+      emailType = 'day60';
+    }
+
+    if (!emailType) { skipped++; continue; }
+
+    // Build and send email
+    const emailContent = buildStillLookingEmail(emailType, {
+      shoeDesc, sizeDesc, daysSinceSubmit, brand, model
+    });
+
+    MailApp.sendEmail({
+      to:       email,
+      subject:  emailContent.subject,
+      htmlBody: emailContent.body,
+      noReply:  true
+    });
+
+    // Update Last Update Sent (column O = 15)
+    sheet.getRange(i + 1, 15).setValue(now);
+
+    Logger.log('✉️  ' + emailType + ' sent to ' + email + ' for ' + shoeDesc + ' (' + daysSinceSubmit + ' days)');
+
+    if (emailType === 'day7')  day7Count++;
+    if (emailType === 'day30') day30Count++;
+    if (emailType === 'day60') day60Count++;
+  }
+
+  Logger.log('========================================');
+  Logger.log('Done! Day7: ' + day7Count + ' | Day30: ' + day30Count + ' | Day60: ' + day60Count);
+  Logger.log('Skipped: ' + skipped);
+  Logger.log('========================================');
+}
+
+
+/**
+ * Builds the still-looking email based on how long we've been searching
+ */
+function buildStillLookingEmail(type, details) {
+  const { shoeDesc, sizeDesc, daysSinceSubmit, brand, model } = details;
+
+  const subjects = {
+    day7:  '👟 FindMySize: We\'re still searching for your ' + brand + '!',
+    day30: '🔍 FindMySize: ' + daysSinceSubmit + ' days searching for your ' + brand + ' — update inside',
+    day60: '⏰ FindMySize: Still no luck on your ' + brand + ' — want to change your request?'
+  };
+
+  const headers = {
+    day7:  { bg: 'linear-gradient(135deg,#667eea,#764ba2)', emoji: '🔍', title: 'Still Searching!',         sub: 'We haven\'t forgotten about you' },
+    day30: { bg: 'linear-gradient(135deg,#ff9800,#f57c00)', emoji: '📡', title: 'Still On The Hunt!',       sub: daysSinceSubmit + ' days and counting — we\'re watching every retailer' },
+    day60: { bg: 'linear-gradient(135deg,#e53935,#c62828)', emoji: '⏰', title: 'Long Time Searching...',   sub: 'Want to update or change your request?' }
+  };
+
+  const messages = {
+    day7: `
+      <p style="margin:0 0 15px; color:#333; font-size:16px; line-height:1.6;">
+        Just a quick note to let you know we're <strong>actively watching</strong> for your shoe!
+      </p>
+      <p style="margin:0 0 15px; color:#555; font-size:15px; line-height:1.6;">
+        We monitor <strong>10+ South African retailers</strong> including Superbalist, Sportscene,
+        Totalsports, The Athletes Foot, Zando, Bash and more — every single day.
+      </p>
+      <p style="margin:0 0 15px; color:#555; font-size:15px; line-height:1.6;">
+        The moment your size becomes available or goes on special, you'll be the
+        <strong>first to know</strong>. No action needed from you — just sit tight!
+      </p>`,
+
+    day30: `
+      <p style="margin:0 0 15px; color:#333; font-size:16px; line-height:1.6;">
+        We've been searching for <strong>${daysSinceSubmit} days</strong> and we're still on it!
+      </p>
+      <p style="margin:0 0 15px; color:#555; font-size:15px; line-height:1.6;">
+        Popular shoes like yours sometimes take time to restock — especially in specific sizes.
+        We're watching all major SA retailers daily and will notify you the instant we find it.
+      </p>
+      <p style="margin:0 0 15px; color:#555; font-size:15px; line-height:1.6;">
+        💡 <strong>Tip:</strong> If you'd like to broaden your search (e.g., accept any color
+        or model), simply submit a new alert at
+        <a href="https://findmysize.github.io/findmysize" style="color:#667eea;">FindMySize</a>
+        with wider preferences.
+      </p>`,
+
+    day60: `
+      <p style="margin:0 0 15px; color:#333; font-size:16px; line-height:1.6;">
+        We've been searching for <strong>${daysSinceSubmit} days</strong> without luck.
+        This shoe may be discontinued or very hard to find in your size.
+      </p>
+      <p style="margin:0 0 15px; color:#555; font-size:15px; line-height:1.6;">
+        Here are some options:
+      </p>
+      <ul style="color:#555; font-size:15px; line-height:2;">
+        <li>🔄 <strong>Update your request</strong> — try a different model or color</li>
+        <li>📐 <strong>Try half a size up or down</strong> — some brands run small/large</li>
+        <li>🌍 <strong>Consider international retailers</strong> — Amazon ships to SA</li>
+        <li>❌ <strong>Cancel your alert</strong> — reply with REMOVE to stop alerts</li>
+      </ul>
+      <p style="margin:15px 0 0; color:#555; font-size:15px; line-height:1.6;">
+        We'll keep searching unless you ask us to stop. No action needed if you want
+        us to continue!
+      </p>`
+  };
+
+  const h = headers[type];
+
+  const body = `
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0; padding:0; background:#f5f5f5; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5; padding:30px 0;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px; background:white; border-radius:16px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.1);">
+
+        <!-- Header -->
+        <tr>
+          <td style="background:${h.bg}; padding:35px 40px; text-align:center;">
+            <p style="margin:0 0 8px; font-size:36px;">${h.emoji}</p>
+            <h1 style="margin:0 0 8px; color:white; font-size:26px; font-weight:700;">
+              ${h.title}
+            </h1>
+            <p style="margin:0; color:rgba(255,255,255,0.9); font-size:14px;">${h.sub}</p>
+          </td>
+        </tr>
+
+        <!-- Shoe reminder box -->
+        <tr>
+          <td style="padding:30px 40px 0;">
+            <table width="100%" cellpadding="0" cellspacing="0"
+              style="background:#f8f9ff; border-radius:10px; border-left:4px solid #667eea;">
+              <tr><td style="padding:18px 20px;">
+                <p style="margin:0 0 8px; color:#667eea; font-weight:700; font-size:14px;">
+                  YOUR ALERT
+                </p>
+                <p style="margin:0; color:#333; font-size:18px; font-weight:700;">
+                  ${shoeDesc}
+                </p>
+                <p style="margin:4px 0 0; color:#777; font-size:14px;">${sizeDesc}</p>
+              </td></tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- Message body -->
+        <tr>
+          <td style="padding:25px 40px;">
+            ${messages[type]}
+          </td>
+        </tr>
+
+        <!-- CTA -->
+        <tr>
+          <td style="padding:0 40px 30px; text-align:center;">
+            <a href="https://findmysize.github.io/findmysize/report-stock.html"
+              style="display:inline-block; padding:14px 30px; background:linear-gradient(135deg,#667eea,#764ba2);
+              color:white; text-decoration:none; border-radius:10px; font-weight:600; font-size:15px; margin-right:10px;">
+              Found It? Report Stock →
+            </a>
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td style="background:#f8f9fa; padding:20px 40px; border-top:1px solid #e0e0e0;">
+            <p style="margin:0; color:#aaa; font-size:12px; text-align:center; line-height:1.8;">
+              You signed up for alerts at <strong>FindMySize</strong>.<br>
+              To unsubscribe reply <strong>UNSUBSCRIBE</strong> | To remove this alert reply <strong>REMOVE</strong>.<br>
+              POPIA compliant — your data is never sold or shared.
+            </p>
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
+  return { subject: subjects[type], body };
+}
+
+
+// ============================================================
+// SET UP DAILY TRIGGER FOR STILL LOOKING UPDATES
+// Run this ONCE to set up the automatic daily check
+// ============================================================
+
+function setupDailyTrigger() {
+  // Remove existing triggers first to avoid duplicates
+  ScriptApp.getProjectTriggers().forEach(function(trigger) {
+    if (trigger.getHandlerFunction() === 'sendStillLookingUpdates') {
+      ScriptApp.deleteTrigger(trigger);
+    }
+  });
+
+  // Create new daily trigger at 9am
+  ScriptApp.newTrigger('sendStillLookingUpdates')
+    .timeBased()
+    .everyDays(1)
+    .atHour(9)
+    .create();
+
+  Logger.log('✅ Daily trigger set! sendStillLookingUpdates() will run every day at 9am.');
+}
+
+
+// ============================================================
+// SECTION 10: TEST FUNCTIONS
 // Use these to test without real data
 // ============================================================
 
