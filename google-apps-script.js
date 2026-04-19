@@ -17,7 +17,7 @@
 //
 // ------------------------------------------------------------
 // ALERT REQUESTS tab - Row 1 headers (copy exactly):
-// Timestamp | Gender | Brand | Model | Color | Style Code | Size | Width | Email | Status | Notified At | Retailer Found | Price When Notified | Notes | Last Update Sent | Product URL
+// Timestamp | Gender | Brand | Model | Color | Style Code | Size | Width | Email | Status | Notified At | Last Update Sent | Retailer Found | Price When Notified | Notes | Product URL
 //
 // STOCK REPORTS tab - Row 1 headers (copy exactly):
 // Timestamp | Report Type | Gender | Brand | Model | Width | Sizes Available | Retailer | Current Price | Original Price | Sale End Date | Notes | Reporter Name | Reporter Email | Status | Product URL
@@ -65,7 +65,7 @@ function saveAlertRequest(ss, data) {
   if (!sheet) throw new Error('Sheet "Alert Requests" not found. Please rename your sheet.');
 
   sheet.appendRow([
-    new Date(),              // A: Timestamp (request received)
+    new Date(),              // A: Timestamp
     data.gender || '',       // B: Gender
     data.brand || '',        // C: Brand
     data.model || '',        // D: Model
@@ -76,10 +76,10 @@ function saveAlertRequest(ss, data) {
     data.email || '',        // I: Email
     'Pending',               // J: Status
     '',                      // K: Notified At
-    '',                      // L: Retailer Found
-    '',                      // M: Price When Notified
-    '',                      // N: Notes
-    '',                      // O: Last Update Sent
+    '',                      // L: Last Update Sent
+    '',                      // M: Retailer Found
+    '',                      // N: Price When Notified
+    '',                      // O: Notes
     data.productUrl || ''    // P: Product URL
   ]);
 
@@ -208,8 +208,8 @@ function notifyUsersForShoe(gender, brand, model, color, size, width, retailerLi
       const newStatus = rowStatus === 're-notify' ? 'Re-notified' : 'Notified';
       sheet.getRange(i + 1, 10).setValue(newStatus);   // J: Status
       sheet.getRange(i + 1, 11).setValue(new Date());  // K: Notified At
-      sheet.getRange(i + 1, 12).setValue(retailerName || ''); // L: Retailer Found
-      sheet.getRange(i + 1, 13).setValue(price || ''); // M: Price When Notified
+      sheet.getRange(i + 1, 13).setValue(retailerName || ''); // M: Retailer Found
+      sheet.getRange(i + 1, 14).setValue(price || ''); // N: Price When Notified
 
       Logger.log('✓ Notified: ' + rowEmail);
     }
@@ -233,7 +233,7 @@ function sendNotificationEmail(rowNumber, retailerLink, price, retailerName, rep
   const sheet = ss.getSheetByName('Alert Requests');
   if (!sheet) { Logger.log('ERROR: Sheet "Alert Requests" not found.'); return; }
 
-  const row = sheet.getRange(rowNumber, 1, 1, 15).getValues()[0];
+  const row = sheet.getRange(rowNumber, 1, 1, 16).getValues()[0];
 
   const gender     = row[1];
   const brand      = row[2];
@@ -266,8 +266,8 @@ function sendNotificationEmail(rowNumber, retailerLink, price, retailerName, rep
 
   sheet.getRange(rowNumber, 10).setValue('Notified');  // J: Status
   sheet.getRange(rowNumber, 11).setValue(new Date());  // K: Notified At
-  if (retailerName) sheet.getRange(rowNumber, 12).setValue(retailerName); // L: Retailer Found
-  if (price) sheet.getRange(rowNumber, 13).setValue(price); // M: Price When Notified
+  if (retailerName) sheet.getRange(rowNumber, 13).setValue(retailerName); // M: Retailer Found
+  if (price) sheet.getRange(rowNumber, 14).setValue(price);               // N: Price When Notified
 
   Logger.log('✓ Notification sent to ' + email + ' for row ' + rowNumber);
 }
@@ -411,8 +411,8 @@ function getAlertStatistics() {
     const styleCode  = data[i][5];
     const size       = data[i][6];
     const width      = data[i][7] || 'Regular';
-    const status     = String(data[i][9]).toLowerCase();
-    const productUrl = data[i][15]; // P: Product URL
+    const status     = String(data[i][9]).toLowerCase();  // J
+    const productUrl = data[i][15];                        // P: Product URL
 
     if (gender) stats.byGender[gender] = (stats.byGender[gender] || 0) + 1;
     if (brand)  stats.byBrand[brand]   = (stats.byBrand[brand]   || 0) + 1;
@@ -613,9 +613,9 @@ function processRenotifications() {
     const size        = String(row[6]).trim();
     const width       = String(row[7] || 'Regular').trim();
     const email       = String(row[8]).trim();
-    const retailer    = String(row[11]).trim() || 'Previously found retailer';
-    const price       = row[12];
-    const productUrl  = String(row[15]).trim(); // P: Product URL
+    const retailer    = String(row[12]).trim() || 'Previously found retailer'; // M
+    const price       = row[13];                                                // N
+    const productUrl  = String(row[15]).trim();                                 // P
 
     const genderLabels = { 'male': "Men's", 'female': "Women's", 'unisex': 'Unisex' };
     const genderLabel  = genderLabels[gender] || gender;
@@ -651,7 +651,7 @@ function reNotifyRow(rowNumber) {
   const sheet = ss.getSheetByName('Alert Requests');
   if (!sheet) { Logger.log('ERROR: Sheet "Alert Requests" not found.'); return; }
 
-  const row = sheet.getRange(rowNumber, 1, 1, 15).getValues()[0];
+  const row = sheet.getRange(rowNumber, 1, 1, 16).getValues()[0];
 
   const gender      = String(row[1]).trim();
   const brand       = String(row[2]).trim();
@@ -659,9 +659,9 @@ function reNotifyRow(rowNumber) {
   const size        = String(row[6]).trim();
   const width       = String(row[7] || 'Regular').trim();
   const email       = String(row[8]).trim();
-  const retailer    = String(row[11]).trim() || 'Previously found retailer';
-  const price       = row[12];
-  const productUrl  = String(row[15]).trim(); // P: Product URL
+  const retailer    = String(row[12]).trim() || 'Previously found retailer'; // M
+  const price       = row[13];                                                // N
+  const productUrl  = String(row[15]).trim();                                 // P
 
   const genderLabels = { 'male': "Men's", 'female': "Women's", 'unisex': 'Unisex' };
   const genderLabel  = genderLabels[gender] || gender;
@@ -797,7 +797,7 @@ function sendStillLookingUpdates() {
     const width           = String(row[7] || 'Regular').trim();
     const email           = String(row[8]).trim();
     const status          = String(row[9]).toLowerCase().trim();
-    const lastUpdateSent  = row[14] ? new Date(row[14]) : null; // O
+    const lastUpdateSent  = row[11] ? new Date(row[11]) : null; // L: Last Update Sent
 
     // Only send to Pending rows
     if (status !== 'pending') { skipped++; continue; }
@@ -845,8 +845,8 @@ function sendStillLookingUpdates() {
       noReply:  true
     });
 
-    // Update Last Update Sent (column O = 15)
-    sheet.getRange(i + 1, 15).setValue(now);
+    // Update Last Update Sent (column L = 12)
+    sheet.getRange(i + 1, 12).setValue(now);
 
     Logger.log('✉️  ' + emailType + ' sent to ' + email + ' for ' + shoeDesc + ' (' + daysSinceSubmit + ' days)');
 
