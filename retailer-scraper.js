@@ -33,7 +33,7 @@
 // Add/remove retailers here — no code changes needed elsewhere
 // ============================================================
 
-const RETAILERS = [
+var RETAILERS = [
 
   // ── CURRENT STORES ──────────────────────────────────────
 
@@ -258,7 +258,7 @@ const RETAILERS = [
 // KNOWN SHOE BRANDS (for smarter matching)
 // ============================================================
 
-const KNOWN_BRANDS = [
+var KNOWN_BRANDS = [
   'Nike', 'Adidas', 'New Balance', 'Puma', 'ASICS', 'Saucony',
   'Brooks', 'Hoka', 'Reebok', 'Converse', 'Vans', 'Timberland',
   'Merrell', 'Salomon', 'On Running', 'Under Armour', 'Fila',
