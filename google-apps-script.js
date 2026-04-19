@@ -499,9 +499,9 @@ function processAllNewStockReports() {
   for (let i = 1; i < data.length; i++) {
     const row    = data[i];
 
-    // Only process rows with status "New" - skip already processed ones
+    // Process "New" and "Active" reports — skip Expired/Notified
     const status = String(row[14]).trim();  // O: Status
-    if (status !== 'New') {
+    if (status !== 'New' && status !== 'Active') {
       skipped++;
       continue;
     }
@@ -563,11 +563,14 @@ function processAllNewStockReports() {
       });
     });
 
-    // Mark row as Notified and highlight green (column O = 15)
-    reportsSheet.getRange(rowNumber, 15).setValue('Notified');
-    reportsSheet.getRange(rowNumber, 15).setBackground('#c8e6c9');
+    // Mark New → Active (keeps matching future requests)
+    // Only change if currently "New" — leave "Active" rows as-is
+    if (status === 'New') {
+      reportsSheet.getRange(rowNumber, 15).setValue('Active');
+      reportsSheet.getRange(rowNumber, 15).setBackground('#b3e5fc'); // Light blue
+    }
 
-    Logger.log('Row ' + rowNumber + ': ' + rowMatchCount + ' users notified');
+    Logger.log('Row ' + rowNumber + ': ' + rowMatchCount + ' users notified | Status: ' + (status === 'New' ? 'New → Active' : 'Active (ongoing)'));
     processed++;
   }
 
@@ -578,7 +581,58 @@ function processAllNewStockReports() {
 
 
 // ============================================================
-// SECTION 8: RE-NOTIFY FUNCTIONS
+// SECTION 8: STOCK REPORT MANAGEMENT
+// ============================================================
+
+/**
+ * Mark a stock report as Expired when shoe is no longer available
+ * Call this when you check and the shoe is sold out
+ * @param {number} rowNumber - Row in Stock Reports tab
+ */
+function expireStockReport(rowNumber) {
+  const ss    = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName('Stock Reports');
+  if (!sheet) { Logger.log('ERROR: Stock Reports not found'); return; }
+
+  const row    = sheet.getRange(rowNumber, 1, 1, 16).getValues()[0];
+  const brand  = String(row[3]).trim();
+  const model  = String(row[4]).trim();
+  const status = String(row[14]).trim();
+
+  if (status === 'Expired') {
+    Logger.log('Row ' + rowNumber + ' is already Expired.');
+    return;
+  }
+
+  sheet.getRange(rowNumber, 15).setValue('Expired');
+  sheet.getRange(rowNumber, 15).setBackground('#ffcdd2'); // Light red
+
+  Logger.log('❌ Expired: Row ' + rowNumber + ' — ' + brand + ' ' + model + ' (was: ' + status + ')');
+}
+
+
+/**
+ * Reactivate an expired stock report if shoe comes back in stock
+ * @param {number} rowNumber - Row in Stock Reports tab
+ */
+function reactivateStockReport(rowNumber) {
+  const ss    = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName('Stock Reports');
+  if (!sheet) { Logger.log('ERROR: Stock Reports not found'); return; }
+
+  const row   = sheet.getRange(rowNumber, 1, 1, 16).getValues()[0];
+  const brand = String(row[3]).trim();
+  const model = String(row[4]).trim();
+
+  sheet.getRange(rowNumber, 15).setValue('New');
+  sheet.getRange(rowNumber, 15).setBackground('#ffffff');
+
+  Logger.log('✅ Reactivated: Row ' + rowNumber + ' — ' + brand + ' ' + model + ' → New');
+}
+
+
+// ============================================================
+// SECTION 9: RE-NOTIFY FUNCTIONS
 // Use when a sale didn't go through or user missed the email
 // ============================================================
 
@@ -1295,16 +1349,30 @@ function testStockReport() {
 //
 // STATUS FLOW:
 //
-//   Pending → Notified → Re-notify → Re-notified → Re-notify → Re-notified ...
-//                                                                     ↓
-//                                                               Purchased (STOP)
+// ALERT REQUESTS:
+//   Pending → Notified → Re-notify → Re-notified → Re-notify → ...
+//                                                        ↓
+//                                                   Purchased (STOP)
 //
-// STATUS MEANINGS:
 //   Pending      = Waiting for matching stock/special
-//   Notified     = First notification sent       (green)
-//   Re-notify    = Set manually - send reminder  (yellow)
-//   Re-notified  = Reminder sent                 (orange)
-//   Purchased    = Customer bought - STOP        (dark green)
+//   Notified     = First notification sent         (green)
+//   Re-notify    = Set manually - send reminder    (yellow)
+//   Re-notified  = Reminder sent                   (orange)
+//   Purchased    = Customer bought - STOP          (dark green)
+//
+// STOCK REPORTS:
+//   New → Active → Expired
+//
+//   New          = Just submitted, not yet processed  (white)
+//   Active       = Verified & keeps matching new requests (blue)
+//   Expired      = Sold out - stop matching           (red)
+//
+// KEY BEHAVIOUR:
+//   Active stock reports keep notifying NEW alert requests as they come in
+//   Only set to Expired when you confirm the shoe is sold out:
+//     expireStockReport(rowNumber)
+//   Reactivate if stock comes back:
+//     reactivateStockReport(rowNumber)
 //
 // DAILY WORKFLOW:
 //
