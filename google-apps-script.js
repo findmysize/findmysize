@@ -170,7 +170,8 @@ function notifyUsersForShoe(gender, brand, model, color, size, width, retailerLi
     const rowEmail     = String(row[8]).trim();
     const rowStatus    = String(row[9]).toLowerCase().trim();
 
-    // Process pending AND re-notify rows
+    // Skip purchased, notified and re-notified rows — only process pending and re-notify
+    if (rowStatus === 'purchased') { alreadyNotified++; continue; }
     if (rowStatus !== 'pending' && rowStatus !== 're-notify') { alreadyNotified++; continue; }
 
     // Check for match
@@ -601,6 +602,8 @@ function processRenotifications() {
     const row    = data[i];
     const status = String(row[9]).toLowerCase().trim();
 
+    // Skip purchased rows — never re-notify someone who already bought
+    if (status === 'purchased') continue;
     if (status !== 're-notify') continue;
 
     const gender      = String(row[1]).trim();
@@ -804,15 +807,38 @@ function testStockReport() {
 // QUICK REFERENCE
 // ============================================================
 //
+// STATUS FLOW:
+//
+//   Pending → Notified → Re-notify → Re-notified → Re-notify → Re-notified ...
+//                                                                     ↓
+//                                                               Purchased (STOP)
+//
+// STATUS MEANINGS:
+//   Pending      = Waiting for matching stock/special
+//   Notified     = First notification sent       (green)
+//   Re-notify    = Set manually - send reminder  (yellow)
+//   Re-notified  = Reminder sent                 (orange)
+//   Purchased    = Customer bought - STOP        (dark green)
+//
 // DAILY WORKFLOW:
 //
 // 1. Check "Stock Reports" tab for new rows (Status = "New")
 // 2. Verify the links are real and in stock
 // 3. Run: processAllNewStockReports()
-//    → Automatically matches ALL new reports to ALL pending requests
+//    → Matches ALL new reports to ALL pending/re-notify requests
 //    → Notifies matching users by email
-//    → Updates status to "Notified" (highlighted green)
-//    → Done!
+//    → Updates status to "Notified" (green)
+//
+// AFTER 3-5 DAYS (if no purchase):
+// 4. Change Status to "Re-notify" for rows you want to follow up
+// 5. Run: processRenotifications()
+//    → Sends reminder email with orange header
+//    → Updates status to "Re-notified"
+//    → Skips anyone marked "Purchased"
+//
+// WHEN CUSTOMER BUYS:
+// 6. Change Status to "Purchased" manually
+//    → No more notifications ever sent to this row
 //
 // MANUAL (if needed):
 //    notifyUsersForShoe('male', 'Nike', 'Pegasus 41', 'Any', '10', 'Regular', 'https://...', 1999, 'Superbalist')
