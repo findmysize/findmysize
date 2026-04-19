@@ -44,73 +44,75 @@ function createTestAlertRequests() {
   const requests = [
 
     // ── MALE (5 requests) ──────────────────────────────────
-    // Timestamp | Gender | Brand | Model | Color | StyleCode | Size | Width | Email | Status | NotifiedAt | RetailerFound | PriceWhenNotified | Notes | ProductURL
+    // A:Timestamp | B:Gender | C:Brand | D:Model | E:Color | F:StyleCode | G:Size | H:Width
+    // I:Email | J:Status | K:NotifiedAt | L:LastUpdateSent | M:RetailerFound
+    // N:PriceWhenNotified | O:Notes | P:ProductURL
 
     // M1: Nike Pegasus - will match Stock Report S1
     [now, 'male', 'Nike', 'Pegasus 41', 'Black/White', 'FD2722-001', '10', 'Regular',
-     email, 'Pending', '', '', '', 'TEST-M1', ''],
+     email, 'Pending', '', '', '', '', 'TEST-M1', ''],
 
     // M2: Adidas Ultraboost - will match Stock Report S2
     [now, 'male', 'Adidas', 'Ultraboost 22', 'Grey', 'Not provided', '9', 'Regular',
-     email, 'Pending', '', '', '', 'TEST-M2', ''],
+     email, 'Pending', '', '', '', '', 'TEST-M2', ''],
 
     // M3: New Balance Wide - will match Special SP3
     [now, 'male', 'New Balance', '1080v13', 'Navy', 'Not provided', '11', 'Wide',
-     email, 'Pending', '', '', '', 'TEST-M3', ''],
+     email, 'Pending', '', '', '', '', 'TEST-M3', ''],
 
     // M4: ASICS - will match Stock Report S4
     [now, 'male', 'ASICS', 'Gel-Kayano 30', 'Blue/Silver', 'Not provided', '10.5', 'Regular',
-     email, 'Pending', '', '', '', 'TEST-M4', ''],
+     email, 'Pending', '', '', '', '', 'TEST-M4', ''],
 
     // M5: Hoka - no match (to test non-matching scenario)
     [now, 'male', 'Hoka', 'Clifton 9', 'White', 'Not provided', '9.5', 'Regular',
-     email, 'Pending', '', '', '', 'TEST-M5-NO-MATCH', ''],
+     email, 'Pending', '', '', '', '', 'TEST-M5-NO-MATCH', ''],
 
 
     // ── FEMALE (5 requests) ────────────────────────────────
 
     // F1: Nike Pegasus Female - will match Stock Report S1 (same shoe, diff gender)
     [now, 'female', 'Nike', 'Pegasus 41', 'Pink/White', 'Not provided', '7', 'Regular',
-     email, 'Pending', '', '', '', 'TEST-F1', ''],
+     email, 'Pending', '', '', '', '', 'TEST-F1', ''],
 
-    // F2: Puma - will match Special SP2
+    // F2: Puma - will match Special SP5
     [now, 'female', 'Puma', 'Suede Classic', 'Grey', 'Not provided', '5', 'Regular',
-     email, 'Pending', '', '', '', 'TEST-F2', ''],
+     email, 'Pending', '', '', '', '', 'TEST-F2', ''],
 
     // F3: Saucony Wide - will match Special SP3
     [now, 'female', 'Saucony', 'Peregrine 16', 'Any', 'Not provided', '6', 'Wide',
-     email, 'Pending', '', '', '', 'TEST-F3', ''],
+     email, 'Pending', '', '', '', '', 'TEST-F3', ''],
 
     // F4: New Balance Trail - will match Stock Report S4 (Any model)
     [now, 'female', 'New Balance', 'Any', 'Purple', 'Not provided', '5', 'Regular',
-     email, 'Pending', '', '', '', 'TEST-F4', ''],
+     email, 'Pending', '', '', '', '', 'TEST-F4', ''],
 
     // F5: Brooks - no match (to test non-matching scenario)
     [now, 'female', 'Brooks', 'Ghost 15', 'Coral', 'Not provided', '7.5', 'Regular',
-     email, 'Pending', '', '', '', 'TEST-F5-NO-MATCH', ''],
+     email, 'Pending', '', '', '', '', 'TEST-F5-NO-MATCH', ''],
 
 
     // ── UNISEX (5 requests) ────────────────────────────────
 
-    // U1: Converse - will match Stock Report S5
+    // U1: Converse - will match Stock Report S3
     [now, 'unisex', 'Converse', 'Chuck Taylor All Star', 'White', 'Not provided', '9', 'Regular',
-     email, 'Pending', '', '', '', 'TEST-U1', ''],
+     email, 'Pending', '', '', '', '', 'TEST-U1', ''],
 
     // U2: Nike Air Force - will match Special SP1
     [now, 'unisex', 'Nike', 'Air Force 1', 'Any', 'Not provided', '10', 'Regular',
-     email, 'Pending', '', '', '', 'TEST-U2', ''],
+     email, 'Pending', '', '', '', '', 'TEST-U2', ''],
 
     // U3: Vans - will match Special SP2
     [now, 'unisex', 'Vans', 'Old Skool', 'Black/White', 'Not provided', '8', 'Regular',
-     email, 'Pending', '', '', '', 'TEST-U3', ''],
+     email, 'Pending', '', '', '', '', 'TEST-U3', ''],
 
     // U4: Adidas Ultraboost Unisex - will match Stock Report S2
     [now, 'unisex', 'Adidas', 'Ultraboost 22', 'Any', 'Not provided', '9', 'Regular',
-     email, 'Pending', '', '', '', 'TEST-U4', ''],
+     email, 'Pending', '', '', '', '', 'TEST-U4', ''],
 
     // U5: Reebok - no match (to test non-matching scenario)
     [now, 'unisex', 'Reebok', 'Classic Leather', 'White', 'Not provided', '8.5', 'Regular',
-     email, 'Pending', '', '', '', 'TEST-U5-NO-MATCH', ''],
+     email, 'Pending', '', '', '', '', 'TEST-U5-NO-MATCH', ''],
   ];
 
   requests.forEach(function(row) { sheet.appendRow(row); });
@@ -258,8 +260,8 @@ function verifyTestResults() {
   let failed = 0;
 
   for (let i = 1; i < data.length; i++) {
-    const notes  = String(data[i][13]).trim();
-    const status = String(data[i][9]).trim();
+    const notes  = String(data[i][14]).trim(); // O: Notes
+    const status = String(data[i][9]).trim();  // J: Status
 
     if (!expected[notes]) continue;
 
@@ -297,7 +299,7 @@ function cleanUpTestData() {
   if (alertSheet) {
     const alertData = alertSheet.getDataRange().getValues();
     for (let i = alertData.length - 1; i >= 1; i--) {
-      const notes = String(alertData[i][13]).trim();
+      const notes = String(alertData[i][14]).trim(); // O: Notes
       if (notes.startsWith('TEST-')) {
         alertSheet.deleteRow(i + 1);
       }

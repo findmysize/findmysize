@@ -37,95 +37,95 @@ function createExtendedTestRequests() {
     // ── NIKE (4 requests) ─────────────────────────────────
     // EX1: Nike Pegasus 41 Male - matches AS1
     [now,'male','Nike','Pegasus 41','Any','FD2722-001','10','Regular',
-     email,'Pending','','','','EXT-01',''],
+     email,'Pending','','','','','EXT-01',''],
 
     // EX2: Nike Pegasus 41 Female - matches AS1
     [now,'female','Nike','Pegasus 41','Pink/White','Not provided','7','Regular',
-     email,'Pending','','','','EXT-02',''],
+     email,'Pending','','','','','EXT-02',''],
 
     // EX3: Nike Air Max Male - matches AS2
     [now,'male','Nike','Air Max 270','Black','Not provided','11','Regular',
-     email,'Pending','','','','EXT-03',''],
+     email,'Pending','','','','','EXT-03',''],
 
     // EX4: Nike Air Max Unisex Wide - matches AS2
     [now,'unisex','Nike','Air Max 270','Any','Not provided','9','Wide',
-     email,'Pending','','','','EXT-04',''],
+     email,'Pending','','','','','EXT-04',''],
 
 
     // ── ADIDAS (4 requests) ───────────────────────────────
     // EX5: Adidas Ultraboost Male - matches AS3
     [now,'male','Adidas','Ultraboost 23','Grey/White','Not provided','10','Regular',
-     email,'Pending','','','','EXT-05',''],
+     email,'Pending','','','','','EXT-05',''],
 
     // EX6: Adidas Ultraboost Female - matches AS3
     [now,'female','Adidas','Ultraboost 23','Any','Not provided','7.5','Regular',
-     email,'Pending','','','','EXT-06',''],
+     email,'Pending','','','','','EXT-06',''],
 
     // EX7: Adidas Samba Unisex - matches AS4
     [now,'unisex','Adidas','Samba OG','White/Black','Not provided','9','Regular',
-     email,'Pending','','','','EXT-07',''],
+     email,'Pending','','','','','EXT-07',''],
 
     // EX8: Adidas NMD Unisex - matches AS4 (Any model)
     [now,'unisex','Adidas','NMD R1','Any','Not provided','8','Regular',
-     email,'Pending','','','','EXT-08',''],
+     email,'Pending','','','','','EXT-08',''],
 
 
     // ── NEW BALANCE (3 requests) ──────────────────────────
     // EX9: NB 574 Unisex - matches AS5
     [now,'unisex','New Balance','574','Navy','Not provided','9','Regular',
-     email,'Pending','','','','EXT-09',''],
+     email,'Pending','','','','','EXT-09',''],
 
     // EX10: NB Fresh Foam Female Wide - matches AS5
     [now,'female','New Balance','Fresh Foam 1080','White','Not provided','6','Wide',
-     email,'Pending','','','','EXT-10',''],
+     email,'Pending','','','','','EXT-10',''],
 
     // EX11: NB Any Male - matches AS5 (Any model)
     [now,'male','New Balance','Any','Any','Not provided','10','Regular',
-     email,'Pending','','','','EXT-11',''],
+     email,'Pending','','','','','EXT-11',''],
 
 
     // ── PUMA (2 requests) ─────────────────────────────────
     // EX12: Puma RS-X Female - matches AS6
     [now,'female','Puma','RS-X','Purple/White','Not provided','5','Regular',
-     email,'Pending','','','','EXT-12',''],
+     email,'Pending','','','','','EXT-12',''],
 
     // EX13: Puma Suede Unisex - matches AS6
     [now,'unisex','Puma','Suede Classic','Any','Not provided','8','Regular',
-     email,'Pending','','','','EXT-13',''],
+     email,'Pending','','','','','EXT-13',''],
 
 
     // ── ASICS (2 requests) ────────────────────────────────
     // EX14: ASICS Gel-Nimbus Male - matches AS7
     [now,'male','ASICS','Gel-Nimbus 25','Blue','Not provided','10.5','Regular',
-     email,'Pending','','','','EXT-14',''],
+     email,'Pending','','','','','EXT-14',''],
 
     // EX15: ASICS Gel-Kayano Female - matches AS7
     [now,'female','ASICS','Gel-Kayano 30','Any','Not provided','6.5','Regular',
-     email,'Pending','','','','EXT-15',''],
+     email,'Pending','','','','','EXT-15',''],
 
 
     // ── SAUCONY (2 requests) ──────────────────────────────
     // EX16: Saucony Ride Male - matches AS8
     [now,'male','Saucony','Ride 16','Black/White','Not provided','9','Regular',
-     email,'Pending','','','','EXT-16',''],
+     email,'Pending','','','','','EXT-16',''],
 
     // EX17: Saucony Peregrine Female Wide - matches AS9
     [now,'female','Saucony','Peregrine 16','Trail Green','Not provided','6','Wide',
-     email,'Pending','','','','EXT-17',''],
+     email,'Pending','','','','','EXT-17',''],
 
 
     // ── HOKA (2 requests) ─────────────────────────────────
     // EX18: Hoka Clifton Male - matches AS10
     [now,'male','Hoka','Clifton 9','White/Black','Not provided','10','Regular',
-     email,'Pending','','','','EXT-18',''],
+     email,'Pending','','','','','EXT-18',''],
 
     // EX19: Hoka Bondi Female - matches AS10
     [now,'female','Hoka','Bondi 8','Any','Not provided','7','Regular',
-     email,'Pending','','','','EXT-19',''],
+     email,'Pending','','','','','EXT-19',''],
 
     // EX20: Brooks Ghost - NO MATCH (intentional)
     [now,'male','Brooks','Ghost 15','Blue','Not provided','9.5','Regular',
-     email,'Pending','','','','EXT-20-NO-MATCH',''],
+     email,'Pending','','','','','EXT-20-NO-MATCH',''],
   ];
 
   requests.forEach(function(row) { sheet.appendRow(row); });
@@ -262,8 +262,8 @@ function simulateNoPurchase() {
   let count = 0;
 
   for (let i = 1; i < data.length; i++) {
-    const notes  = String(data[i][13]).trim();
-    const status = String(data[i][9]).trim();
+    const notes  = String(data[i][14]).trim(); // O: Notes
+    const status = String(data[i][9]).trim();  // J: Status
 
     if (renotifyTests.includes(notes) && status === 'Notified') {
       sheet.getRange(i + 1, 10).setValue('Re-notify');
@@ -297,8 +297,8 @@ function simulatePurchases() {
   let count = 0;
 
   for (let i = 1; i < data.length; i++) {
-    const notes  = String(data[i][13]).trim();
-    const status = String(data[i][9]).trim();
+    const notes  = String(data[i][14]).trim(); // O: Notes
+    const status = String(data[i][9]).trim();  // J: Status
 
     if (purchasedTests.includes(notes) && status === 'Re-notified') {
       sheet.getRange(i + 1, 10).setValue('Purchased');
@@ -357,8 +357,8 @@ function verifyExtendedResults() {
   let failed = 0;
 
   for (let i = 1; i < data.length; i++) {
-    const notes  = String(data[i][13]).trim();
-    const status = String(data[i][9]).trim();
+    const notes  = String(data[i][14]).trim(); // O: Notes
+    const status = String(data[i][9]).trim();  // J: Status
 
     if (!expected[notes]) continue;
 
@@ -397,7 +397,7 @@ function cleanUpExtendedTestData() {
   if (alertSheet) {
     const data = alertSheet.getDataRange().getValues();
     for (let i = data.length - 1; i >= 1; i--) {
-      if (String(data[i][13]).startsWith('EXT-')) {
+      if (String(data[i][14]).startsWith('EXT-')) { // O: Notes
         alertSheet.deleteRow(i + 1);
       }
     }
