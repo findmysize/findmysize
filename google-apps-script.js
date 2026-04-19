@@ -283,7 +283,7 @@ function buildNotificationEmail(details) {
   const modelText  = (model && model !== 'Any' && model !== 'Not specified') ? model : '';
   const colorText  = (color && color !== 'Any' && color !== 'Not specified') ? color : '';
   const styleText  = (styleCode && styleCode !== 'Not provided' && styleCode !== '') ? styleCode : '';
-  const priceText  = price ? 'R' + Number(price).toLocaleString('en-ZA') : '';
+  const priceText  = price ? 'R' + Number(price).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : '';
   const foundBy    = reporterName && reporterName !== 'Anonymous' ? '🙌 Thanks to <strong>' + reporterName + '</strong> for spotting this!' : '';
 
   return `
