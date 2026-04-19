@@ -40,9 +40,8 @@ var RETAILERS = [
   {
     name:       'Superbalist',
     saleUrls:   [
-      'https://superbalist.com/shoes?sort=sale',
-      'https://superbalist.com/women/shoes?sort=sale',
-      'https://superbalist.com/men/shoes?sort=sale'
+      'https://superbalist.com/women/shoes',
+      'https://superbalist.com/men/shoes'
     ],
     pricePattern:   /"price"\s*:\s*"?([\d.]+)"?/,
     titlePattern:   /"name"\s*:\s*"([^"]+)"/,
@@ -102,9 +101,8 @@ var RETAILERS = [
   {
     name:       'Bash',
     saleUrls:   [
-      'https://www.bash.com/shoes',
-      'https://www.bash.com/women/shoes',
-      'https://www.bash.com/men/shoes'
+      'https://bash.com/men/sports/shoes',
+      'https://bash.com/women/shoes'
     ],
     pricePattern:   /"price"\s*:\s*"?([\d.]+)"?/,
     titlePattern:   /"name"\s*:\s*"([^"]+)"/,
@@ -127,12 +125,12 @@ var RETAILERS = [
   {
     name:       'Edgars',
     saleUrls:   [
-      'https://www.edgars.co.za/c/shoes',
-      'https://www.edgars.co.za/c/footwear'
+      'https://www.edgars.co.za/collections/sale-main',
+      'https://www.edgars.co.za/collections/shoes'
     ],
-    pricePattern:   /"price"\s*:\s*"?([\d.]+)"?/,
-    titlePattern:   /"name"\s*:\s*"([^"]+)"/,
-    brandPattern:   /"brand"\s*:\s*"([^"]+)"/,
+    pricePattern:   /"price"\s*:\s*([\d]+)/,
+    titlePattern:   /"title"\s*:\s*"([^"]+)"/,
+    brandPattern:   /"vendor"\s*:\s*"([^"]+)"/,
     active:     true
   },
 
@@ -142,8 +140,8 @@ var RETAILERS = [
   {
     name:       'Sportsmans Warehouse',
     saleUrls:   [
-      'https://www.sportsmanswarehouse.co.za/footwear',
-      'https://www.sportsmanswarehouse.co.za/footwear/running-shoes'
+      'https://www.sportsmanswarehouse.co.za/category/footwear-2/',
+      'https://www.sportsmanswarehouse.co.za/category/footwear-2/running/'
     ],
     pricePattern:   /"price"\s*:\s*"?([\d.]+)"?/,
     titlePattern:   /"name"\s*:\s*"([^"]+)"/,
@@ -167,13 +165,14 @@ var RETAILERS = [
     name:       'New Balance SA',
     saleUrls:   [
       'https://www.newbalance.co.za/en/sale/',
-      'https://www.newbalance.co.za/en/sale/footwear/'
+      'https://www.newbalance.co.za/en/men/shoes/',
+      'https://www.newbalance.co.za/en/women/shoes/'
     ],
     pricePattern:   /"price"\s*:\s*"?([\d.]+)"?/,
     titlePattern:   /"name"\s*:\s*"([^"]+)"/,
     brandPattern:   null,
     defaultBrand:   'New Balance',
-    active:     false  // 403 - blocked, disable for now
+    active:     true
   },
 
   {
@@ -193,62 +192,39 @@ var RETAILERS = [
   {
     name:       'Adidas SA',
     saleUrls:   [
-      'https://www.adidas.co.za/sale/shoes',
-      'https://www.adidas.co.za/men-shoes-sale',
-      'https://www.adidas.co.za/women-shoes-sale'
+      'https://www.adidas.co.za/shoes',
+      'https://www.adidas.co.za/men-shoes',
+      'https://www.adidas.co.za/women-shoes'
     ],
     pricePattern:   /"salePrice"\s*:\s*([\d.]+)/,
     titlePattern:   /"modelName"\s*:\s*"([^"]+)"/,
     brandPattern:   null,
     defaultBrand:   'Adidas',
-    active:     false  // 403 - blocked, disable for now
-  },
-
-  {
-    name:       'Pick n Pay Clothing',
-    saleUrls:   [
-      'https://www.pnpclothing.co.za/c/footwear',
-      'https://www.pnpclothing.co.za/c/shoes'
-    ],
-    pricePattern:   /class="[^"]*sale[^"]*price[^"]*"[^>]*>\s*R\s*([\d,]+\.?\d*)/i,
-    titlePattern:   /class="[^"]*product[^"]*title[^"]*"[^>]*>\s*([^<]+)/i,
-    brandPattern:   /class="[^"]*brand[^"]*"[^>]*>\s*([^<]+)/i,
     active:     true
   },
 
-  {
-    name:       'De Jagers',
-    saleUrls:   [
-      'https://dejagers.co.za/specials',
-      'https://dejagers.co.za/shoes'
-    ],
-    pricePattern:   /R\s*([\d,]+\.?\d{2})/,
-    titlePattern:   /class="[^"]*product[^"]*name[^"]*"[^>]*>\s*([^<]+)/i,
-    brandPattern:   /class="[^"]*brand[^"]*"[^>]*>\s*([^<]+)/i,
-    active:     true
-  },
 
   {
     name:       'Footgear',
     saleUrls:   [
-      'https://www.footgear.co.za/footwear',
-      'https://www.footgear.co.za/footwear/sneakers'
+      'https://www.footgear.co.za/collections/sale',
+      'https://www.footgear.co.za/collections/sneakers'
     ],
-    pricePattern:   /"price"\s*:\s*"?([\d.]+)"?/,
-    titlePattern:   /"name"\s*:\s*"([^"]+)"/,
-    brandPattern:   /"brand"\s*:\s*"([^"]+)"/,
+    pricePattern:   /"price"\s*:\s*([\d]+)/,
+    titlePattern:   /"title"\s*:\s*"([^"]+)"/,
+    brandPattern:   /"vendor"\s*:\s*"([^"]+)"/,
     active:     true
   },
 
   {
     name:       'Kloppers Sport',
     saleUrls:   [
-      'https://www.kloppers.co.za/footwear',
-      'https://www.kloppers.co.za/footwear/running'
+      'https://klopperssport.co.za/product-category/shoes/running-shoes',
+      'https://klopperssport.co.za/product-category/shoes/'
     ],
-    pricePattern:   /"price"\s*:\s*"?([\d.]+)"?/,
-    titlePattern:   /"name"\s*:\s*"([^"]+)"/,
-    brandPattern:   /"brand"\s*:\s*"([^"]+)"/,
+    pricePattern:   /class="[^"]*price[^"]*"[^>]*>\s*R\s*([\d,]+\.?\d*)/i,
+    titlePattern:   /class="[^"]*product[^"]*title[^"]*"[^>]*>\s*([^<]+)/i,
+    brandPattern:   /class="[^"]*brand[^"]*"[^>]*>\s*([^<]+)/i,
     active:     true
   }
 
