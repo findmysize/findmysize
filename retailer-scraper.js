@@ -732,38 +732,201 @@ function setupScraperTrigger() {
 
 
 // ============================================================
-// TEST SCRAPER (run manually to test one retailer)
+// RETAILER DIAGNOSTIC TESTS
 // ============================================================
 
-function testSingleRetailer() {
-  // Change this to test any retailer
-  const testRetailer = RETAILERS.find(function(r) { return r.name === "Runner's World SA"; });
+/**
+ * Tests ALL retailers one by one
+ * Shows exactly what each URL returns and why
+ * Run this to diagnose which retailers work
+ */
+function testAllRetailers() {
+  Logger.log('╔══════════════════════════════════════════╗');
+  Logger.log('║   Retailer Diagnostic Test               ║');
+  Logger.log('╚══════════════════════════════════════════╝');
 
-  if (!testRetailer) { Logger.log('Retailer not found'); return; }
+  var results = { working: [], blocked: [], notFound: [], noDeals: [], errors: [] };
 
-  Logger.log('Testing: ' + testRetailer.name);
+  RETAILERS.forEach(function(retailer) {
+    Logger.log('\n══════════════════════════════════════════');
+    Logger.log('🔍 ' + retailer.name + (retailer.active ? '' : ' [INACTIVE]'));
+    Logger.log('══════════════════════════════════════════');
 
-  testRetailer.saleUrls.forEach(function(url) {
+    testRetailerDetailed(retailer, results);
+    Utilities.sleep(1500); // Be polite between retailers
+  });
+
+  // Summary
+  Logger.log('\n╔══════════════════════════════════════════╗');
+  Logger.log('║   SUMMARY                                ║');
+  Logger.log('╠══════════════════════════════════════════╣');
+  Logger.log('║ ✅ Working (deals found):   ' + results.working.join(', '));
+  Logger.log('║ ⚠️  No deals (JS-rendered):  ' + results.noDeals.join(', '));
+  Logger.log('║ 🚫 Blocked (403/429):       ' + results.blocked.join(', '));
+  Logger.log('║ ❌ Not found (404):         ' + results.notFound.join(', '));
+  Logger.log('║ 💥 Errors:                  ' + results.errors.join(', '));
+  Logger.log('╚══════════════════════════════════════════╝');
+}
+
+
+/**
+ * Test a single retailer by name
+ * e.g. testRetailerByName('Superbalist')
+ */
+function testRetailerByName(name) {
+  var retailer = RETAILERS.find(function(r) {
+    return r.name.toLowerCase() === name.toLowerCase();
+  });
+
+  if (!retailer) {
+    Logger.log('❌ Retailer not found: ' + name);
+    Logger.log('Available: ' + RETAILERS.map(function(r) { return r.name; }).join(', '));
+    return;
+  }
+
+  Logger.log('╔══════════════════════════════════════════╗');
+  Logger.log('║   Testing: ' + retailer.name);
+  Logger.log('╚══════════════════════════════════════════╝');
+  testRetailerDetailed(retailer, { working:[], blocked:[], notFound:[], noDeals:[], errors:[] });
+}
+
+
+/**
+ * Core diagnostic function — shows everything
+ */
+function testRetailerDetailed(retailer, results) {
+  retailer.saleUrls.forEach(function(url, urlIndex) {
+    Logger.log('\n  URL ' + (urlIndex + 1) + ': ' + url);
+
     try {
-      const response = UrlFetchApp.fetch(url, {
+      var response = UrlFetchApp.fetch(url, {
+        muteHttpExceptions: true,
+        followRedirects:    true,
+        headers: {
+          'User-Agent':      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
+          'Accept':          'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'Accept-Language': 'en-ZA,en;q=0.9'
+        }
+      });
+
+      var code        = response.getResponseCode();
+      var html        = response.getContentText();
+      var htmlLength  = html.length;
+      var finalUrl    = url; // Apps Script doesn't expose final URL easily
+
+      Logger.log('  HTTP Status:   ' + code);
+      Logger.log('  HTML Size:     ' + (htmlLength / 1024).toFixed(1) + ' KB');
+
+      if (code === 200) {
+        // --- Diagnose what data formats are present ---
+        var hasJsonLd    = html.indexOf('application/ld+json') !== -1;
+        var hasShopify   = html.indexOf('Shopify') !== -1 || html.indexOf('shopify') !== -1;
+        var hasPrice     = html.match(/R\s*[\d,]+/) !== null;
+        var hasSchema    = html.indexOf('itemprop="price"') !== -1;
+        var isJsHeavy    = html.indexOf('__NEXT_DATA__') !== -1 ||
+                           html.indexOf('window.__reactContext') !== -1 ||
+                           html.indexOf('ng-app') !== -1;
+
+        Logger.log('  JSON-LD:       ' + (hasJsonLd  ? '✅ Present' : '❌ Not found'));
+        Logger.log('  Shopify:       ' + (hasShopify ? '✅ Detected' : '❌ Not detected'));
+        Logger.log('  Price in HTML: ' + (hasPrice   ? '✅ Found' : '❌ Not found'));
+        Logger.log('  Schema.org:    ' + (hasSchema  ? '✅ Present' : '❌ Not found'));
+        Logger.log('  JS-rendered:   ' + (isJsHeavy  ? '⚠️  Yes — prices loaded by JavaScript' : '✅ No — static HTML'));
+
+        // --- Try to extract deals ---
+        var deals = extractDealsFromHtml(html, retailer, url);
+        Logger.log('  Deals found:   ' + deals.length);
+
+        if (deals.length > 0) {
+          Logger.log('  Sample deals:');
+          deals.slice(0, 5).forEach(function(d, i) {
+            var priceStr = d.price ? 'R' + Number(d.price).toFixed(2) : 'no price';
+            var origStr  = d.originalPrice ? ' (was R' + Number(d.originalPrice).toFixed(2) + ')' : '';
+            Logger.log('    ' + (i+1) + '. ' + (d.brand || '?') + ' | ' + (d.title || '?') + ' | ' + priceStr + origStr);
+          });
+          if (urlIndex === 0) results.working.push(retailer.name);
+        } else {
+          Logger.log('  ℹ️  No deals extracted');
+
+          // Show a snippet of the HTML to help diagnose
+          var snippet = html.substring(0, 500).replace(/\s+/g, ' ').trim();
+          Logger.log('  HTML snippet:  ' + snippet.substring(0, 300) + '...');
+
+          if (isJsHeavy) {
+            Logger.log('  💡 Site uses JavaScript rendering — prices won\'t be in raw HTML');
+            Logger.log('     Solution: Use the site\'s API or JSON feed instead');
+          } else if (!hasPrice) {
+            Logger.log('  💡 No price found in HTML at all — URL may be wrong or redirected');
+          } else {
+            Logger.log('  💡 Prices exist in HTML but patterns don\'t match — pattern needs updating');
+          }
+          if (urlIndex === 0) results.noDeals.push(retailer.name);
+        }
+
+      } else if (code === 403 || code === 429) {
+        Logger.log('  🚫 BLOCKED — retailer is blocking automated requests');
+        Logger.log('  💡 Solution: Try with a cookie or use their API/affiliate feed');
+        if (urlIndex === 0) results.blocked.push(retailer.name);
+
+      } else if (code === 404) {
+        Logger.log('  ❌ PAGE NOT FOUND — URL needs updating');
+        Logger.log('  💡 Visit ' + retailer.name + ' manually to find the correct sale URL');
+        if (urlIndex === 0) results.notFound.push(retailer.name);
+
+      } else if (code === 301 || code === 302) {
+        Logger.log('  🔀 REDIRECTED (' + code + ') — URL has moved');
+        Logger.log('  💡 Find the new URL and update the config');
+        if (urlIndex === 0) results.errors.push(retailer.name);
+
+      } else {
+        Logger.log('  ⚠️  Unexpected response: ' + code);
+        if (urlIndex === 0) results.errors.push(retailer.name);
+      }
+
+    } catch(e) {
+      Logger.log('  💥 ERROR: ' + e.toString());
+      if (urlIndex === 0) results.errors.push(retailer.name);
+    }
+
+    Utilities.sleep(500);
+  });
+}
+
+
+/**
+ * Quick status check — just checks if each URL is reachable
+ * Faster than full test — use this first
+ */
+function pingAllRetailers() {
+  Logger.log('╔══════════════════════════════════════════╗');
+  Logger.log('║   Quick Retailer Ping Test               ║');
+  Logger.log('╚══════════════════════════════════════════╝');
+
+  RETAILERS.forEach(function(retailer) {
+    if (!retailer.active) {
+      Logger.log('⏸️  ' + retailer.name + ' [inactive]');
+      return;
+    }
+
+    var url = retailer.saleUrls[0]; // Just check first URL
+    try {
+      var response = UrlFetchApp.fetch(url, {
         muteHttpExceptions: true,
         followRedirects:    true,
         headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
       });
 
-      const code  = response.getResponseCode();
-      const html  = response.getContentText();
-      const deals = extractDealsFromHtml(html, testRetailer, url);
-
-      Logger.log('URL: ' + url);
-      Logger.log('Response: ' + code);
-      Logger.log('Deals found: ' + deals.length);
-      deals.slice(0, 5).forEach(function(d) {
-        Logger.log('  → ' + d.brand + ' | ' + d.title + ' | R' + Number(d.price).toFixed(2));
-      });
+      var code = response.getResponseCode();
+      var icon = code === 200 ? '✅' : code === 403 || code === 429 ? '🚫' : code === 404 ? '❌' : '⚠️';
+      Logger.log(icon + ' ' + retailer.name.padEnd(25) + ' → ' + code);
 
     } catch(e) {
-      Logger.log('Error: ' + e.toString());
+      Logger.log('💥 ' + retailer.name.padEnd(25) + ' → ERROR: ' + e.message);
     }
+
+    Utilities.sleep(800);
   });
+
+  Logger.log('\n✅=OK  🚫=Blocked  ❌=NotFound  ⚠️=Other  💥=Error');
+  Logger.log('Run testRetailerByName("name") for detailed diagnosis');
 }
