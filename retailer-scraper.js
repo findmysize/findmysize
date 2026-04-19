@@ -37,17 +37,6 @@ var RETAILERS = [
 
   // ── CURRENT STORES ──────────────────────────────────────
 
-  {
-    name:       'Superbalist',
-    saleUrls:   [
-      'https://superbalist.com/women/shoes',
-      'https://superbalist.com/men/shoes'
-    ],
-    pricePattern:   /"price"\s*:\s*"?([\d.]+)"?/,
-    titlePattern:   /"name"\s*:\s*"([^"]+)"/,
-    brandPattern:   /"brand"\s*:\s*\{[^}]*"name"\s*:\s*"([^"]+)"/,
-    active:     true
-  },
 
   {
     name:       'Zando',
@@ -161,19 +150,6 @@ var RETAILERS = [
     active:     true
   },
 
-  {
-    name:       'New Balance SA',
-    saleUrls:   [
-      'https://www.newbalance.co.za/en/sale/',
-      'https://www.newbalance.co.za/en/men/shoes/',
-      'https://www.newbalance.co.za/en/women/shoes/'
-    ],
-    pricePattern:   /"price"\s*:\s*"?([\d.]+)"?/,
-    titlePattern:   /"name"\s*:\s*"([^"]+)"/,
-    brandPattern:   null,
-    defaultBrand:   'New Balance',
-    active:     true
-  },
 
   {
     name:       'Nike SA',
@@ -189,32 +165,8 @@ var RETAILERS = [
     active:     true
   },
 
-  {
-    name:       'Adidas SA',
-    saleUrls:   [
-      'https://www.adidas.co.za/shoes',
-      'https://www.adidas.co.za/men-shoes',
-      'https://www.adidas.co.za/women-shoes'
-    ],
-    pricePattern:   /"salePrice"\s*:\s*([\d.]+)/,
-    titlePattern:   /"modelName"\s*:\s*"([^"]+)"/,
-    brandPattern:   null,
-    defaultBrand:   'Adidas',
-    active:     true
-  },
 
 
-  {
-    name:       'Footgear',
-    saleUrls:   [
-      'https://www.footgear.co.za/collections/sale',
-      'https://www.footgear.co.za/collections/sneakers'
-    ],
-    pricePattern:   /"price"\s*:\s*([\d]+)/,
-    titlePattern:   /"title"\s*:\s*"([^"]+)"/,
-    brandPattern:   /"vendor"\s*:\s*"([^"]+)"/,
-    active:     true
-  },
 
   {
     name:       'Kloppers Sport',
