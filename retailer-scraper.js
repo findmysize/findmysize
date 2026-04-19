@@ -40,9 +40,9 @@ var RETAILERS = [
   {
     name:       'Superbalist',
     saleUrls:   [
-      'https://superbalist.com/sale/shoes/sneakers',
-      'https://superbalist.com/sale/shoes/running',
-      'https://superbalist.com/sale/shoes'
+      'https://superbalist.com/shoes?sort=sale',
+      'https://superbalist.com/women/shoes?sort=sale',
+      'https://superbalist.com/men/shoes?sort=sale'
     ],
     pricePattern:   /"price"\s*:\s*"?([\d.]+)"?/,
     titlePattern:   /"name"\s*:\s*"([^"]+)"/,
@@ -66,8 +66,8 @@ var RETAILERS = [
   {
     name:       'Sportscene',
     saleUrls:   [
-      'https://www.sportscene.co.za/c/sale?q=%3Arelevance%3Acategory%3Ashoes',
-      'https://www.sportscene.co.za/c/shoes?q=%3Arelevance%3AonSale%3Atrue'
+      'https://www.sportscene.co.za/c/footwear',
+      'https://www.sportscene.co.za/c/sale'
     ],
     pricePattern:   /"price"\s*:\s*"?([\d.]+)"?/,
     titlePattern:   /"name"\s*:\s*"([^"]+)"/,
@@ -102,8 +102,9 @@ var RETAILERS = [
   {
     name:       'Bash',
     saleUrls:   [
-      'https://www.bash.com/sale/shoes',
-      'https://www.bash.com/shoes?sortBy=discount'
+      'https://www.bash.com/shoes',
+      'https://www.bash.com/women/shoes',
+      'https://www.bash.com/men/shoes'
     ],
     pricePattern:   /"price"\s*:\s*"?([\d.]+)"?/,
     titlePattern:   /"name"\s*:\s*"([^"]+)"/,
@@ -126,8 +127,8 @@ var RETAILERS = [
   {
     name:       'Edgars',
     saleUrls:   [
-      'https://www.edgars.co.za/c/sale/shoes',
-      'https://www.edgars.co.za/c/shoes?q=%3Arelevance%3AonSale%3Atrue'
+      'https://www.edgars.co.za/c/shoes',
+      'https://www.edgars.co.za/c/footwear'
     ],
     pricePattern:   /"price"\s*:\s*"?([\d.]+)"?/,
     titlePattern:   /"name"\s*:\s*"([^"]+)"/,
@@ -141,8 +142,8 @@ var RETAILERS = [
   {
     name:       'Sportsmans Warehouse',
     saleUrls:   [
-      'https://www.sportsmanswarehouse.co.za/promotions/footwear',
-      'https://www.sportsmanswarehouse.co.za/catalogsearch/result/?q=shoes+sale'
+      'https://www.sportsmanswarehouse.co.za/footwear',
+      'https://www.sportsmanswarehouse.co.za/footwear/running-shoes'
     ],
     pricePattern:   /"price"\s*:\s*"?([\d.]+)"?/,
     titlePattern:   /"name"\s*:\s*"([^"]+)"/,
@@ -172,7 +173,7 @@ var RETAILERS = [
     titlePattern:   /"name"\s*:\s*"([^"]+)"/,
     brandPattern:   null,
     defaultBrand:   'New Balance',
-    active:     true
+    active:     false  // 403 - blocked, disable for now
   },
 
   {
@@ -198,16 +199,16 @@ var RETAILERS = [
     ],
     pricePattern:   /"salePrice"\s*:\s*([\d.]+)/,
     titlePattern:   /"modelName"\s*:\s*"([^"]+)"/,
-    brandPattern:   null, // Always Adidas
+    brandPattern:   null,
     defaultBrand:   'Adidas',
-    active:     true
+    active:     false  // 403 - blocked, disable for now
   },
 
   {
     name:       'Pick n Pay Clothing',
     saleUrls:   [
-      'https://clothing.pnp.co.za/specials/footwear',
-      'https://clothing.pnp.co.za/category/shoes?sort=discount'
+      'https://www.pnpclothing.co.za/c/footwear',
+      'https://www.pnpclothing.co.za/c/shoes'
     ],
     pricePattern:   /class="[^"]*sale[^"]*price[^"]*"[^>]*>\s*R\s*([\d,]+\.?\d*)/i,
     titlePattern:   /class="[^"]*product[^"]*title[^"]*"[^>]*>\s*([^<]+)/i,
@@ -218,8 +219,8 @@ var RETAILERS = [
   {
     name:       'De Jagers',
     saleUrls:   [
-      'https://www.dejagers.co.za/specials/footwear',
-      'https://www.dejagers.co.za/shoes/sale'
+      'https://dejagers.co.za/specials',
+      'https://dejagers.co.za/shoes'
     ],
     pricePattern:   /R\s*([\d,]+\.?\d{2})/,
     titlePattern:   /class="[^"]*product[^"]*name[^"]*"[^>]*>\s*([^<]+)/i,
@@ -230,8 +231,8 @@ var RETAILERS = [
   {
     name:       'Footgear',
     saleUrls:   [
-      'https://www.footgear.co.za/sale/footwear',
-      'https://www.footgear.co.za/specials'
+      'https://www.footgear.co.za/footwear',
+      'https://www.footgear.co.za/footwear/sneakers'
     ],
     pricePattern:   /"price"\s*:\s*"?([\d.]+)"?/,
     titlePattern:   /"name"\s*:\s*"([^"]+)"/,
@@ -242,8 +243,8 @@ var RETAILERS = [
   {
     name:       'Kloppers Sport',
     saleUrls:   [
-      'https://www.kloppers.co.za/specials/footwear',
-      'https://www.kloppers.co.za/footwear?on_sale=1'
+      'https://www.kloppers.co.za/footwear',
+      'https://www.kloppers.co.za/footwear/running'
     ],
     pricePattern:   /"price"\s*:\s*"?([\d.]+)"?/,
     titlePattern:   /"name"\s*:\s*"([^"]+)"/,
