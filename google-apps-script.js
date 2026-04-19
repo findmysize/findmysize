@@ -1301,7 +1301,220 @@ function getArchiveStats() {
 
 
 // ============================================================
-// SECTION 11: TEST FUNCTIONS
+// SECTION 11: URL AVAILABILITY CHECKER
+// Checks all Active Stock Report URLs daily
+// Auto-expires reports where URL returns 404 (sold out)
+// ============================================================
+
+/**
+ * ⭐ Run daily via trigger (added to setupDailyTrigger)
+ * Checks every Active Stock Report URL
+ * 404 = sold out → auto-expires the report
+ * 200 = still live → leaves Active
+ * Other errors → flags for manual review
+ */
+function checkStockReportUrls() {
+  const ss    = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName('Stock Reports');
+  if (!sheet) { Logger.log('ERROR: Stock Reports not found'); return; }
+
+  const data = sheet.getDataRange().getValues();
+  const now  = new Date();
+
+  let checked  = 0;
+  let expired  = 0;
+  let live     = 0;
+  let noUrl    = 0;
+  let errors   = 0;
+
+  Logger.log('========================================');
+  Logger.log('Checking Stock Report URLs...');
+  Logger.log('========================================');
+
+  for (let i = 1; i < data.length; i++) {
+    const row        = data[i];
+    const status     = String(row[14]).trim(); // O: Status
+    const productUrl = String(row[15]).trim(); // P: Product URL
+    const brand      = String(row[3]).trim();
+    const model      = String(row[4]).trim();
+    const retailer   = String(row[7]).trim();
+    const rowNumber  = i + 1;
+
+    // Only check Active reports
+    if (status !== 'Active') continue;
+
+    // Skip if no URL provided
+    if (!productUrl || productUrl === '' || productUrl === 'Not provided') {
+      Logger.log('⚠️  Row ' + rowNumber + ': ' + brand + ' ' + model + ' — No URL to check');
+      noUrl++;
+      continue;
+    }
+
+    checked++;
+
+    try {
+      const response = UrlFetchApp.fetch(productUrl, {
+        muteHttpExceptions: true,  // Don't throw on 404 — handle it ourselves
+        followRedirects: true,
+        headers: {
+          // Mimic a real browser to reduce blocking
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+      });
+
+      const responseCode = response.getResponseCode();
+
+      if (responseCode === 404) {
+        // Definitely sold out or page removed
+        sheet.getRange(rowNumber, 15).setValue('Expired');
+        sheet.getRange(rowNumber, 15).setBackground('#ffcdd2'); // Light red
+        sheet.getRange(rowNumber, 15).setNote('Auto-expired on ' + now.toDateString() + ' — URL returned 404');
+        Logger.log('❌ EXPIRED Row ' + rowNumber + ': ' + brand + ' ' + model + ' @ ' + retailer + ' (404)');
+        expired++;
+
+      } else if (responseCode === 200) {
+        // Still live — try to extract current price from page HTML
+        const html         = response.getContentText();
+        const detectedPrice = extractPriceFromHtml(html);
+        const originalPrice = row[8]; // I: Current Price stored when reported
+
+        if (detectedPrice) {
+          const priceDiff = detectedPrice - Number(originalPrice);
+
+          if (Math.abs(priceDiff) > 1) {
+            // Price has changed — update the stored price and add note
+            sheet.getRange(rowNumber, 9).setValue(detectedPrice); // I: Update Current Price
+            const direction = priceDiff > 0 ? '📈 up' : '📉 down';
+            const note = 'Last checked: ' + now.toDateString()
+              + ' — Price ' + direction + ' from R' + Number(originalPrice).toFixed(2)
+              + ' to R' + detectedPrice.toFixed(2);
+            sheet.getRange(rowNumber, 15).setNote(note);
+            Logger.log('💰 PRICE CHANGE Row ' + rowNumber + ': ' + brand + ' ' + model
+              + ' — R' + Number(originalPrice).toFixed(2) + ' → R' + detectedPrice.toFixed(2)
+              + ' (' + direction + ')');
+          } else {
+            // Price unchanged
+            sheet.getRange(rowNumber, 15).setNote('Last checked: ' + now.toDateString()
+              + ' — OK, price unchanged at R' + detectedPrice.toFixed(2));
+            Logger.log('✅ LIVE     Row ' + rowNumber + ': ' + brand + ' ' + model
+              + ' @ ' + retailer + ' — R' + detectedPrice.toFixed(2) + ' (unchanged)');
+          }
+        } else {
+          // Couldn't extract price — page live but price not readable
+          sheet.getRange(rowNumber, 15).setNote('Last checked: ' + now.toDateString()
+            + ' — OK (price not readable from page — verify manually)');
+          Logger.log('✅ LIVE     Row ' + rowNumber + ': ' + brand + ' ' + model
+            + ' @ ' + retailer + ' — price not extractable');
+        }
+        live++;
+
+      } else if (responseCode === 301 || responseCode === 302) {
+        // Redirected — probably still live but URL changed
+        sheet.getRange(rowNumber, 15).setNote('Last checked: ' + now.toDateString() + ' — Redirected (' + responseCode + ') — verify URL');
+        Logger.log('🔀 REDIRECT Row ' + rowNumber + ': ' + brand + ' ' + model + ' @ ' + retailer + ' (' + responseCode + ')');
+        live++;
+
+      } else if (responseCode === 403 || responseCode === 429) {
+        // Blocked by retailer — can't determine status
+        sheet.getRange(rowNumber, 15).setNote('Last checked: ' + now.toDateString() + ' — Blocked by retailer (' + responseCode + ') — check manually');
+        Logger.log('🚫 BLOCKED  Row ' + rowNumber + ': ' + brand + ' ' + model + ' @ ' + retailer + ' (' + responseCode + ') — check manually');
+        errors++;
+
+      } else {
+        // Unknown response — flag for manual review
+        sheet.getRange(rowNumber, 15).setNote('Last checked: ' + now.toDateString() + ' — Unexpected response (' + responseCode + ') — check manually');
+        Logger.log('❓ UNKNOWN  Row ' + rowNumber + ': ' + brand + ' ' + model + ' @ ' + retailer + ' (' + responseCode + ')');
+        errors++;
+      }
+
+      // Small pause to avoid hitting rate limits
+      Utilities.sleep(500);
+
+    } catch (error) {
+      Logger.log('⚠️  ERROR   Row ' + rowNumber + ': ' + brand + ' ' + model + ' — ' + error.toString());
+      sheet.getRange(rowNumber, 15).setNote('Last checked: ' + now.toDateString() + ' — Error: ' + error.toString());
+      errors++;
+    }
+  }
+
+  Logger.log('========================================');
+  Logger.log('URL Check Complete:');
+  Logger.log('  ✅ Live:     ' + live);
+  Logger.log('  ❌ Expired:  ' + expired);
+  Logger.log('  🚫 Blocked:  ' + errors);
+  Logger.log('  ⚠️  No URL:   ' + noUrl);
+  Logger.log('  📊 Total checked: ' + checked);
+  Logger.log('========================================');
+}
+
+
+/**
+ * Tries to extract a price from raw HTML
+ * Checks common price patterns used by SA retailers
+ * Returns a number or null if not found
+ */
+function extractPriceFromHtml(html) {
+  // Patterns to try in order of reliability
+
+  // 1. JSON-LD structured data (most reliable — used by many retailers)
+  const jsonLdMatch = html.match(/"price"\s*:\s*"?([\d,]+\.?\d*)"?/);
+  if (jsonLdMatch) return parseFloat(jsonLdMatch[1].replace(',', ''));
+
+  // 2. Open Graph price meta tag
+  const ogPriceMatch = html.match(/property="og:price:amount"\s+content="([\d,]+\.?\d*)"/);
+  if (ogPriceMatch) return parseFloat(ogPriceMatch[1].replace(',', ''));
+
+  // 3. Common price class patterns (Superbalist, Zando, etc.)
+  const classPriceMatch = html.match(/class="[^"]*price[^"]*"[^>]*>\s*R?\s*([\d\s,]+\.?\d*)/i);
+  if (classPriceMatch) return parseFloat(classPriceMatch[1].replace(/[\s,]/g, ''));
+
+  // 4. Schema.org price itemprop
+  const itemPropMatch = html.match(/itemprop="price"\s+content="([\d,]+\.?\d*)"/);
+  if (itemPropMatch) return parseFloat(itemPropMatch[1].replace(',', ''));
+
+  // 5. Generic R price pattern (last resort — less reliable)
+  const genericMatch = html.match(/R\s*([\d,]+\.?\d{2})/);
+  if (genericMatch) return parseFloat(genericMatch[1].replace(',', ''));
+
+  return null;
+}
+
+
+/**
+ * Run this ONCE to add URL checking to the daily trigger
+ * This adds checkStockReportUrls() alongside sendStillLookingUpdates()
+ */
+function setupDailyTrigger() {
+  // Remove existing daily triggers to avoid duplicates
+  ScriptApp.getProjectTriggers().forEach(function(trigger) {
+    if (trigger.getHandlerFunction() === 'sendStillLookingUpdates' ||
+        trigger.getHandlerFunction() === 'checkStockReportUrls') {
+      ScriptApp.deleteTrigger(trigger);
+    }
+  });
+
+  // Still looking emails — 9am daily
+  ScriptApp.newTrigger('sendStillLookingUpdates')
+    .timeBased()
+    .everyDays(1)
+    .atHour(9)
+    .create();
+
+  // URL availability check — 10am daily (after still looking)
+  ScriptApp.newTrigger('checkStockReportUrls')
+    .timeBased()
+    .everyDays(1)
+    .atHour(10)
+    .create();
+
+  Logger.log('✅ Daily triggers set:');
+  Logger.log('   9am  → sendStillLookingUpdates()');
+  Logger.log('   10am → checkStockReportUrls()');
+}
+
+
+// ============================================================
+// SECTION 12: TEST FUNCTIONS
 // Use these to test without real data
 // ============================================================
 
@@ -1408,5 +1621,8 @@ function testStockReport() {
 // ARCHIVE:
 //    runArchive()             ← manually trigger archive run
 //    archiveRow(5)            ← archive one specific row
+//
+// URL CHECKER (runs daily 10am automatically):
+//    checkStockReportUrls()   ← manually check all Active URLs now
 //
 // ============================================================
