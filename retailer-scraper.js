@@ -164,14 +164,17 @@ const RETAILERS = [
 
   {
     name:       "Runner's World SA",
+    // NOTE: runnersworld.co.za redirects to newbalance.co.za
+    // Find correct URL by visiting their Facebook page or Google "Runner's World SA shop"
+    // Then update the URLs below and set active: true
     saleUrls:   [
-      'https://www.runnersworld.co.za/collections/sale',
-      'https://www.runnersworld.co.za/collections/running-shoes-sale'
+      'https://www.runnersworldshop.co.za/collections/sale',
+      'https://www.runnersworldshop.co.za/collections/running-shoes'
     ],
     pricePattern:   /"price"\s*:\s*([\d]+)/,
     titlePattern:   /"title"\s*:\s*"([^"]+)"/,
     brandPattern:   /"vendor"\s*:\s*"([^"]+)"/,
-    active:     true
+    active:     false  // Disabled until correct URL is confirmed
   },
 
   {
