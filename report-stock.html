@@ -398,15 +398,33 @@
                 <label for="retailer">Retailer <span class="required">*</span></label>
                 <select id="retailer" name="retailer" required onchange="toggleOther('retailer')">
                     <option value="">Select retailer</option>
-                    <option value="Superbalist">Superbalist</option>
-                    <option value="Zando">Zando</option>
-                    <option value="Sportscene">Sportscene</option>
-                    <option value="Totalsports">Totalsports</option>
-                    <option value="The Athletes Foot">The Athletes Foot</option>
-                    <option value="Bash">Bash</option>
-                    <option value="Cape Union Mart">Cape Union Mart</option>
-                    <option value="Edgars">Edgars</option>
-                    <option value="Amazon">Amazon</option>
+                    <optgroup label="Sports & Running">
+                        <option value="Footgear">Footgear</option>
+                        <option value="Sportscene">Sportscene</option>
+                        <option value="Totalsports">Totalsports</option>
+                        <option value="The Athletes Foot">The Athletes Foot</option>
+                        <option value="Sportsmans Warehouse">Sportsmans Warehouse</option>
+                        <option value="Mr Price Sport">Mr Price Sport</option>
+                        <option value="Runner's World SA">Runner's World SA</option>
+                        <option value="Kloppers Sport">Kloppers Sport</option>
+                    </optgroup>
+                    <optgroup label="Fashion & Lifestyle">
+                        <option value="Superbalist">Superbalist</option>
+                        <option value="Zando">Zando</option>
+                        <option value="Bash">Bash</option>
+                        <option value="Edgars">Edgars</option>
+                        <option value="Cape Union Mart">Cape Union Mart</option>
+                        <option value="Pick n Pay Clothing">Pick n Pay Clothing</option>
+                        <option value="De Jagers">De Jagers</option>
+                    </optgroup>
+                    <optgroup label="Brand Direct">
+                        <option value="Nike SA">Nike SA</option>
+                        <option value="Adidas SA">Adidas SA</option>
+                    </optgroup>
+                    <optgroup label="International">
+                        <option value="Amazon">Amazon</option>
+                        <option value="ASOS">ASOS</option>
+                    </optgroup>
                     <option value="Other">Other</option>
                 </select>
                 <input type="text" id="retailerOther" name="retailerOther"
