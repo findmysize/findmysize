@@ -1033,7 +1033,221 @@ function setupDailyTrigger() {
 
 
 // ============================================================
-// SECTION 10: TEST FUNCTIONS
+// SECTION 10: ARCHIVING SYSTEM
+// Auto-archives completed and expired rows to keep main sheet clean
+// ============================================================
+
+/**
+ * ⭐ MAIN ARCHIVE FUNCTION
+ * Moves rows to Archive tab based on status and age:
+ *   - Purchased       → archive immediately
+ *   - Notified        → archive after 90 days
+ *   - Re-notified     → archive after 90 days
+ *   - Pending         → archive after 90 days (no match found)
+ *   - Unsubscribed    → archive immediately
+ *
+ * Set up via setupWeeklyArchiveTrigger() — runs every Sunday at 8am
+ */
+function runArchive() {
+  const ss           = SpreadsheetApp.getActiveSpreadsheet();
+  const alertSheet   = ss.getSheetByName('Alert Requests');
+  const archiveSheet = ss.getSheetByName('Archive') || createArchiveSheet(ss);
+
+  if (!alertSheet) { Logger.log('ERROR: Alert Requests sheet not found'); return; }
+
+  const data = alertSheet.getDataRange().getValues();
+  const now  = new Date();
+
+  let archived = 0;
+  let skipped  = 0;
+
+  Logger.log('========================================');
+  Logger.log('Running Archive...');
+  Logger.log('Checking ' + (data.length - 1) + ' rows...');
+  Logger.log('========================================');
+
+  // Loop backwards so row deletion doesn't affect index
+  for (let i = data.length - 1; i >= 1; i--) {
+    const row             = data[i];
+    const timestamp       = new Date(row[0]);
+    const brand           = String(row[2]).trim();
+    const size            = String(row[6]).trim();
+    const status          = String(row[9]).trim().toLowerCase();
+    const notifiedAt      = row[10] ? new Date(row[10]) : null;
+    const daysSinceSubmit = Math.floor((now - timestamp) / (1000 * 60 * 60 * 24));
+    const daysSinceNotify = notifiedAt
+      ? Math.floor((now - notifiedAt) / (1000 * 60 * 60 * 24))
+      : 0;
+
+    let archiveReason = null;
+
+    // Purchased — archive immediately
+    if (status === 'purchased') {
+      archiveReason = 'Purchased';
+
+    // Unsubscribed — archive immediately
+    } else if (status === 'unsubscribed') {
+      archiveReason = 'Unsubscribed';
+
+    // Notified or Re-notified — archive after 90 days since notification
+    } else if ((status === 'notified' || status === 're-notified') && daysSinceNotify >= 90) {
+      archiveReason = 'Notified - No purchase after 90 days';
+
+    // Pending — archive after 90 days (no match ever found)
+    } else if (status === 'pending' && daysSinceSubmit >= 90) {
+      archiveReason = 'Expired - No match found after 90 days';
+    }
+
+    if (!archiveReason) { skipped++; continue; }
+
+    // Build archive row — all 16 original columns + Archive Reason (Q)
+    const archiveRow = [
+      row[0],  // A: Timestamp
+      row[1],  // B: Gender
+      row[2],  // C: Brand
+      row[3],  // D: Model
+      row[4],  // E: Color
+      row[5],  // F: Style Code
+      row[6],  // G: Size
+      row[7],  // H: Width
+      row[8],  // I: Email
+      row[9],  // J: Status
+      row[10], // K: Notified At
+      row[11], // L: Last Update Sent
+      row[12], // M: Retailer Found
+      row[13], // N: Price When Notified
+      row[14], // O: Notes
+      row[15], // P: Product URL
+      archiveReason, // Q: Archive Reason
+      now            // R: Archived At
+    ];
+
+    // Append to Archive tab
+    archiveSheet.appendRow(archiveRow);
+
+    // Delete from Alert Requests
+    alertSheet.deleteRow(i + 1);
+
+    Logger.log('📦 Archived: ' + brand + ' size ' + size + ' | ' + archiveReason);
+    archived++;
+  }
+
+  Logger.log('========================================');
+  Logger.log('Done! Archived: ' + archived + ' | Skipped: ' + skipped);
+  Logger.log('========================================');
+}
+
+
+/**
+ * Archive a single row manually by row number
+ * @param {number} rowNumber - Row in Alert Requests to archive
+ * @param {string} reason    - Optional reason override
+ */
+function archiveRow(rowNumber, reason) {
+  const ss           = SpreadsheetApp.getActiveSpreadsheet();
+  const alertSheet   = ss.getSheetByName('Alert Requests');
+  const archiveSheet = ss.getSheetByName('Archive') || createArchiveSheet(ss);
+
+  if (!alertSheet) { Logger.log('ERROR: Alert Requests not found'); return; }
+
+  const row    = alertSheet.getRange(rowNumber, 1, 1, 16).getValues()[0];
+  const brand  = String(row[2]).trim();
+  const size   = String(row[6]).trim();
+  const status = String(row[9]).trim();
+
+  const archiveReason = reason || 'Manually archived';
+
+  archiveSheet.appendRow([
+    row[0], row[1], row[2], row[3], row[4], row[5],
+    row[6], row[7], row[8], row[9], row[10], row[11],
+    row[12], row[13], row[14], row[15],
+    archiveReason,
+    new Date()
+  ]);
+
+  alertSheet.deleteRow(rowNumber);
+
+  Logger.log('📦 Archived row ' + rowNumber + ': ' + brand + ' size ' + size + ' (' + status + ')');
+}
+
+
+/**
+ * Creates the Archive tab with correct headers if it doesn't exist
+ */
+function createArchiveSheet(ss) {
+  const sheet = ss.insertSheet('Archive');
+
+  sheet.getRange(1, 1, 1, 18).setValues([[
+    'Timestamp', 'Gender', 'Brand', 'Model', 'Color', 'Style Code',
+    'Size', 'Width', 'Email', 'Status', 'Notified At', 'Last Update Sent',
+    'Retailer Found', 'Price When Notified', 'Notes', 'Product URL',
+    'Archive Reason', 'Archived At'
+  ]]);
+
+  // Style header row - dark grey
+  sheet.getRange(1, 1, 1, 18)
+    .setBackground('#37474f')
+    .setFontColor('white')
+    .setFontWeight('bold');
+
+  sheet.setFrozenRows(1);
+
+  Logger.log('✅ Archive tab created with headers');
+  return sheet;
+}
+
+
+/**
+ * Sets up a weekly trigger to run runArchive() every Sunday at 8am
+ * Run this ONCE to activate
+ */
+function setupWeeklyArchiveTrigger() {
+  // Remove existing archive triggers to avoid duplicates
+  ScriptApp.getProjectTriggers().forEach(function(trigger) {
+    if (trigger.getHandlerFunction() === 'runArchive') {
+      ScriptApp.deleteTrigger(trigger);
+    }
+  });
+
+  ScriptApp.newTrigger('runArchive')
+    .timeBased()
+    .onWeekDay(ScriptApp.WeekDay.SUNDAY)
+    .atHour(8)
+    .create();
+
+  Logger.log('✅ Weekly archive trigger set! runArchive() will run every Sunday at 8am.');
+}
+
+
+/**
+ * View archive statistics
+ */
+function getArchiveStats() {
+  const ss    = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName('Archive');
+
+  if (!sheet || sheet.getLastRow() <= 1) {
+    Logger.log('Archive is empty or does not exist yet.');
+    return;
+  }
+
+  const data = sheet.getDataRange().getValues();
+  const stats = { total: data.length - 1, byReason: {}, byBrand: {} };
+
+  for (let i = 1; i < data.length; i++) {
+    const brand  = String(data[i][2]).trim();
+    const reason = String(data[i][16]).trim();
+    stats.byReason[reason] = (stats.byReason[reason] || 0) + 1;
+    stats.byBrand[brand]   = (stats.byBrand[brand]   || 0) + 1;
+  }
+
+  Logger.log('=== ARCHIVE STATISTICS ===');
+  Logger.log(JSON.stringify(stats, null, 2));
+}
+
+
+// ============================================================
+// SECTION 11: TEST FUNCTIONS
 // Use these to test without real data
 // ============================================================
 
@@ -1118,8 +1332,13 @@ function testStockReport() {
 // CHECK DEMAND:
 //    getAlertStatistics()     ← see what shoes people want most
 //    getStockReportStats()    ← see community reporting activity
+//    getArchiveStats()        ← see archived row breakdown
 //
 // NOTIFY ONE PERSON:
 //    sendNotificationEmail(5, 'https://...', 1999, 'Superbalist')  ← notify row 5
+//
+// ARCHIVE:
+//    runArchive()             ← manually trigger archive run
+//    archiveRow(5)            ← archive one specific row
 //
 // ============================================================
